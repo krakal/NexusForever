@@ -5,7 +5,9 @@
     /// </remarks>
     public enum UserText
     {
+        [UserText(UserTextFlags.NoStartEndSpace | UserTextFlags.Unknown4 | UserTextFlags.Unknown100 | UserTextFlags.RequireSpace, 31u, 5u)]
         CharacterName                = 0,
+        [UserText(UserTextFlags.NoConsecutiveSpace | UserTextFlags.NoStartEndSpace | UserTextFlags.Unknown4 | UserTextFlags.Unknown20, 17u, 3u)]
         ScientistScanbotName         = 1,
         [UserText(UserTextFlags.NoConsecutiveSpace | UserTextFlags.NoStartEndSpace | UserTextFlags.Unknown20, 30u, 3u)]
         GuildName                    = 2,
@@ -37,6 +39,8 @@
         FriendshipAccountEmail       = 21,
         FriendshipInviteNote         = 22,
         PlayerTicketText             = 24,
+        [UserText(UserTextFlags.NoStartEndSpace | UserTextFlags.Unknown4 | UserTextFlags.NoSpace | UserTextFlags.Unknown100, 29u, 1u)]
+        CharacterNamePart            = 25,
         PlayerTicketSubject          = 26
     }
 }

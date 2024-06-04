@@ -1,6 +1,7 @@
-﻿using System.Numerics;
+using System.Numerics;
 using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Abstract.Map.Search;
+using NexusForever.Game.Static.Entity;
 using NexusForever.GameTable.Model;
 using NexusForever.IO.Map;
 using NexusForever.Network.Message;
@@ -12,7 +13,7 @@ namespace NexusForever.Game.Abstract.Map
         /// <summary>
         /// Distance between a <see cref="IPlayer"/> and a <see cref="IGridEntity"/> before the entity can be seen.
         /// </summary>
-        float VisionRange { get; }
+        float? VisionRange { get; }
 
         WorldEntry Entry { get; }
         MapFile File { get; }
@@ -28,14 +29,14 @@ namespace NexusForever.Game.Abstract.Map
         void EnqueueRelocate(IGridEntity entity, Vector3 position);
 
         /// <summary>
-        /// Return all <see cref="IGridEntity"/>'s from <see cref="Vector3"/> in range that satisfy <see cref="ISearchCheck"/>.
+        /// Return all <see cref="IGridEntity"/>'s from <see cref="Vector3"/> in range that satisfy <see cref="ISearchCheck{T}"/>.
         /// </summary>
-        void Search(Vector3 vector, float radius, ISearchCheck check, out List<IGridEntity> intersectedEntities);
+        IEnumerable<T> Search<T>(Vector3 vector, float? radius, ISearchCheck<T> check) where T : IGridEntity;
 
         /// <summary>
         /// Return all <see cref="IMapGrid"/>'s from <see cref="Vector3"/> in range.
         /// </summary>
-        void GridSearch(Vector3 vector, float radius, out List<IMapGrid> intersectedGrids);
+        void GridSearch(Vector3 vector, float? radius, out List<IMapGrid> intersectedGrids);
 
         /// <summary>
         /// Return <see cref="IGridEntity"/> by guid.
@@ -61,5 +62,10 @@ namespace NexusForever.Game.Abstract.Map
         /// Return terrain height at supplied position.
         /// </summary>
         float? GetTerrainHeight(float x, float z);
+
+        /// <summary>
+        /// Return <see cref="ResurrectionType"/> applicable to this map.
+        /// </summary>
+        ResurrectionType GetResurrectionType();
     }
 }

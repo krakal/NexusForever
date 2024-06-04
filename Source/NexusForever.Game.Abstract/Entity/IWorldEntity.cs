@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using NexusForever.Database.World.Model;
 using NexusForever.Game.Abstract.Entity.Movement;
 using NexusForever.Game.Abstract.Social;
@@ -18,6 +18,7 @@ namespace NexusForever.Game.Abstract.Entity
         EntityType Type { get; }
         EntityCreateFlag CreateFlags { get; set; }
         Vector3 Rotation { get; set; }
+        public WorldZoneEntry Zone { get; }
 
         uint EntityId { get; }
         uint CreatureId { get; set; }
@@ -32,32 +33,48 @@ namespace NexusForever.Game.Abstract.Entity
         ushort WorldSocketId { get; }
         ulong ActivePropId { get; }
 
+        EntitySplineModel Spline { get; }
+
         Vector3 LeashPosition { get; }
         float LeashRange { get; }
         IMovementManager MovementManager { get; }
 
         uint Health { get; }
-        uint Shield { get; }
+        uint MaxHealth { get; set; }
+        uint Shield { get; set; }
+        uint MaxShieldCapacity { get; set; }
         uint Level { get; set; }
         uint InterruptArmor { get; set; }
         bool Sheathed { get; set; }
 
+        StandState StandState { get; set; }
+
         /// <summary>
-        /// Guid of the <see cref="IWorldEntity"/> currently targeted.
+        /// Collection of guids currently targeting this <see cref="IWorldEntity"/>.
         /// </summary>
-        uint TargetGuid { get; set; }
+        IEnumerable<uint> TargetingGuids { get; }
 
         /// <summary>
         /// Guid of the <see cref="IPlayer"/> currently controlling this <see cref="IWorldEntity"/>.
         /// </summary>
-        uint ControllerGuid { get; set; }
+        uint? ControllerGuid { get; set; }
+
+        /// <summary>
+        /// Guid of the <see cref="IWorldEntity"/> the <see cref="IWorldEntity"/> is a passenger on.
+        /// </summary>
+        uint? PlatformGuid { get; }
+
+        /// <summary>
+        /// Initialise <see cref="IWorldEntity"/> with supplied data.
+        /// </summary>
+        public void Initialise(uint creatureId);
 
         /// <summary>
         /// Initialise <see cref="IWorldEntity"/> from an existing database model.
         /// </summary>
         void Initialise(EntityModel model);
 
-        ServerEntityCreate BuildCreatePacket();
+        ServerEntityCreate BuildCreatePacket(bool initialCommands);
 
         /// <summary>
         /// Invoked when <see cref="IWorldEntity"/> is activated.
@@ -78,6 +95,11 @@ namespace NexusForever.Game.Abstract.Entity
         /// Set <see cref="IWorldEntity"/> to broadcast all <see cref="IItemVisual"/> on next world update.
         /// </summary>
         void SetVisualEmit(bool status);
+
+        /// <summary>
+        /// Set visual info of <see cref="IWorldEntity"/> with supplied data.
+        /// </summary>
+        public void SetVisualInfo(uint displayInfo, ushort outfitInfo);
 
         /// <summary>
         /// Add or update <see cref="IItemVisual"/> at <see cref="ItemSlot"/> with supplied data.
@@ -102,6 +124,9 @@ namespace NexusForever.Game.Abstract.Entity
         /// <summary>
         /// Get <see cref="IPropertyValue"/> for <see cref="IWorldEntity"/> <see cref="Property"/>.
         /// </summary>
+        /// <remarks>
+        /// If <see cref="Property"/> doesn't exist it will be created with the default value specified in the GameTable.
+        /// </remarks>
         IPropertyValue GetProperty(Property property);
 
         /// <summary>
@@ -118,11 +143,6 @@ namespace NexusForever.Game.Abstract.Entity
         /// Sets the base value and calculate primary value for <see cref="Property"/>.
         /// </summary>
         void SetBaseProperty(Property property, float value);
-
-        /// <summary>
-        /// Calculate the primary value for <see cref="Property"/>.
-        /// </summary>
-        void CalculateProperty(Property property);
 
         /// <summary>
         /// Set <see cref="IWorldEntity"/> to broadcast <see cref="Property"/> on next world update.
@@ -157,6 +177,34 @@ namespace NexusForever.Game.Abstract.Entity
         /// <summary>
         /// Broadcast chat message built from <see cref="IChatMessageBuilder"/> to <see cref="IPlayer"/> in supplied range.
         /// </summary>
-        void Talk(IChatMessageBuilder builder, float range, IGridEntity exclude = null);
+        void Talk(IChatMessageBuilder builder, float range, IPlayer exclude = null);
+
+        /// <summary>
+        /// Invoked when <see cref="IWorldEntity"/> is targeted by another <see cref="IUnitEntity"/>.
+        /// </summary>
+        /// <remarks>
+        /// While any entity can be targeted, only <see cref="IUnitEntity"/> can target.
+        /// </remarks>
+        void OnTargeted(IUnitEntity source);
+
+        /// <summary>
+        /// Invoked when <see cref="IWorldEntity"/> is untargeted by another <see cref="IUnitEntity"/>.
+        /// </summary>
+        void OnUntargeted(IUnitEntity source);
+
+        /// <summary>
+        /// Set platform to suppled <see cref="IWorldEntity"/> with optional position and rotation offsets.
+        /// </summary>
+        void SetPlatform(IWorldEntity entity, Vector3 position = default, Vector3 rotation = default);
+
+        /// <summary>
+        /// Add <see cref="IWorldEntity"/> as a passenger on this <see cref="IWorldEntity"/>.
+        /// </summary>
+        void AddPlatformPassenger(IWorldEntity passenger);
+
+        /// <summary>
+        /// Remove <see cref="IWorldEntity"/> as a passenger on this <see cref="IWorldEntity"/>.
+        /// </summary>
+        void RemovePlatformPassenger(IWorldEntity passenger);
     }
 }

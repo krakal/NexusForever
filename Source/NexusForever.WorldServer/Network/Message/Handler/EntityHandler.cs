@@ -1,13 +1,12 @@
 using System.Linq;
 using NexusForever.Game;
 using NexusForever.Game.Abstract.Entity;
+using NexusForever.Game.Static.Entity;
 using NexusForever.Game.Static.Quest;
 using NexusForever.GameTable;
 using NexusForever.GameTable.Model;
 using NexusForever.Network;
 using NexusForever.Network.Message;
-using NexusForever.Network.World.Entity;
-using NexusForever.Network.World.Entity.Command;
 using NexusForever.Network.World.Message.Model;
 using NLog;
 
@@ -24,36 +23,10 @@ namespace NexusForever.WorldServer.Network.Message.Handler
             if (mover == null)
                 return;
 
-            if (session.Player.ControlGuid != session.Player.Guid)
-                mover = session.Player.GetVisible<IWorldEntity>(session.Player.ControlGuid);
+            if (session.Player.ControlGuid != null)
+                mover = session.Player.GetVisible<IWorldEntity>(session.Player.ControlGuid.Value);
 
-            if (mover == null)
-                return;
-
-            foreach ((EntityCommand id, IEntityCommandModel command) in entityCommand.Commands)
-            {
-                switch (command)
-                {
-                    case SetPositionCommand setPosition:
-                    {
-                        // this is causing issues after moving to soon after mounting:
-                        // session.Player.CancelSpellsOnMove();
-                        mover.Relocate(setPosition.Position.Vector);
-                        break;
-                    }
-                    case SetRotationCommand setRotation:
-                        mover.Rotation = setRotation.Position.Vector;
-                        break;
-                }
-            }
-
-            mover.EnqueueToVisible(new ServerEntityCommand
-            {
-                Guid     = mover.Guid,
-                Time     = entityCommand.Time,
-                ServerControlled = false,
-                Commands = entityCommand.Commands
-            });
+            mover?.MovementManager.HandleClientEntityCommands(entityCommand.Commands, entityCommand.Time);
         }
 
         [MessageHandler(GameMessageOpcode.ClientActivateUnit)]
@@ -85,7 +58,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         }
 
         [MessageHandler(GameMessageOpcode.ClientEntityInteract)]
-        public static void HandleClientEntityInteraction(WorldSession session, ClientEntityInteract entityInteraction)
+        public static void HandleClientEntityInteraction(IWorldSession session, ClientEntityInteract entityInteraction)
         {
             IWorldEntity entity = session.Player.GetVisible<IWorldEntity>(entityInteraction.Guid);
             if (entity != null)
@@ -110,7 +83,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler
                     VendorHandler.HandleClientVendor(session, entityInteraction);
                     break;
                 case 68: // "MailboxActivate"
-                    var mailboxEntity = session.Player.Map.GetEntity<IMailbox>(entityInteraction.Guid);
+                    var mailboxEntity = session.Player.Map.GetEntity<IMailboxEntity>(entityInteraction.Guid);
                     break;
                 case 8: // "HousingGuildNeighborhoodBrokerOpen"
                 case 40:
@@ -157,6 +130,24 @@ namespace NexusForever.WorldServer.Network.Message.Handler
                 throw new InvalidPacketValueException();
 
             session.Player.Sit(chair);
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientResurrectAccept)]
+        public static void HandleClientResurrectAccept(IWorldSession session, ClientResurrectAccept clientResurrectAccept)
+        {
+            if (clientResurrectAccept.RezType == ResurrectionType.None)
+                return;
+
+            session.Player.ResurrectionManager.Resurrect(clientResurrectAccept.RezType);
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientResurrectRequest)]
+        public static void HandleClientResurrectRequest(IWorldSession session, ClientResurrectRequest _)
+        {
+            if (session.Player.TargetGuid == null)
+                return;
+
+            session.Player.ResurrectionManager.Resurrect(session.Player.TargetGuid.Value);
         }
     }
 }

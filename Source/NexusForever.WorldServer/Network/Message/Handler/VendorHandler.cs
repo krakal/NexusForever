@@ -1,46 +1,46 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using NexusForever.Database.World.Model;
+using NexusForever.Game;
 using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Entity;
+using NexusForever.Game.Static.Account;
 using NexusForever.Game.Static.Entity;
 using NexusForever.GameTable;
 using NexusForever.GameTable.Model;
 using NexusForever.Network.Message;
 using NexusForever.Network.World.Message.Model;
+using NexusForever.Network.World.Message.Static;
 
 namespace NexusForever.WorldServer.Network.Message.Handler
 {
     public static class VendorHandler
-    {   
+    {
         public static void HandleClientVendor(IWorldSession session, ClientEntityInteract vendor)
         {
-            var vendorEntity = session.Player.Map.GetEntity<INonPlayer>(vendor.Guid);
+            var vendorEntity = session.Player.Map.GetEntity<INonPlayerEntity>(vendor.Guid);
             if (vendorEntity == null)
-            {
-                return;
-            }
+                throw new InvalidOperationException();
 
             if (vendorEntity.VendorInfo == null)
-            {
-                return;
-            }
+                throw new InvalidOperationException();
 
             session.Player.SelectedVendorInfo = vendorEntity.VendorInfo;
             var serverVendor = new ServerVendorItemsUpdated
             {
-                Guid = vendor.Guid,
+                Guid                = vendor.Guid,
                 SellPriceMultiplier = vendorEntity.VendorInfo.SellPriceMultiplier,
-                BuyPriceMultiplier = vendorEntity.VendorInfo.BuyPriceMultiplier,
-                Unknown2 = true,
-                Unknown3 = true,
-                Unknown4 = false
+                BuyPriceMultiplier  = vendorEntity.VendorInfo.BuyPriceMultiplier,
+                Unknown2            = true,
+                Unknown3            = true,
+                Unknown4            = false
             };
 
             foreach (EntityVendorCategoryModel category in vendorEntity.VendorInfo.Categories)
             {
                 serverVendor.Categories.Add(new ServerVendorItemsUpdated.Category
                 {
-                    Index = category.Index,
+                    Index           = category.Index,
                     LocalisedTextId = category.LocalisedTextId
                 });
             }
@@ -48,14 +48,21 @@ namespace NexusForever.WorldServer.Network.Message.Handler
             {
                 serverVendor.Items.Add(new ServerVendorItemsUpdated.Item
                 {
-                    Index = item.Index,
-                    ItemId = item.ItemId,
+                    Index         = item.Index,
+                    ItemId        = item.ItemId,
                     CategoryIndex = item.CategoryIndex,
-                    Unknown6 = 0,
-                    UnknownB = new[]
+                    Unknown6      = 0,
+                    ExtraCost1 = new ServerVendorItemsUpdated.Item.ItemExtraCost()
                     {
-                        new ServerVendorItemsUpdated.Item.UnknownItemStructure(),
-                        new ServerVendorItemsUpdated.Item.UnknownItemStructure()
+                        ExtraCostType    = item.ExtraCost1Type,
+                        Quantity         = item.ExtraCost1Quantity,
+                        ItemOrCurrencyId = item.ExtraCost1ItemOrCurrencyId
+                    },
+                    ExtraCost2 = new ServerVendorItemsUpdated.Item.ItemExtraCost()
+                    {
+                        ExtraCostType    = item.ExtraCost2Type,
+                        Quantity         = item.ExtraCost2Quantity,
+                        ItemOrCurrencyId = item.ExtraCost2ItemOrCurrencyId
                     }
                 });
             }
@@ -74,26 +81,54 @@ namespace NexusForever.WorldServer.Network.Message.Handler
                 return;
 
             Item2Entry itemEntry = GameTableManager.Instance.Item.GetEntry(vendorItem.ItemId);
-            float costMultiplier = vendorInfo.BuyPriceMultiplier * vendorPurchase.VendorItemQty;
+            IItemInfo info = ItemManager.Instance.GetItemInfo(itemEntry.Id);
+            if (info == null)
+                return;
 
-            // do all sanity checks before modifying currency
-            var currencyChanges = new List<(CurrencyType CurrencyTypeId, ulong CurrencyAmount)>();
-            for (int i = 0; i < itemEntry.CurrencyTypeId.Length; i++)
+            var vendorItemPurchaseCost = new VendorItemPurchaseCost();
+
+            if (vendorItem.ExtraCost1Type == ItemExtraCostType.None
+                && vendorItem.ExtraCost2Type == ItemExtraCostType.None)
             {
-                CurrencyType currencyId = (CurrencyType)itemEntry.CurrencyTypeId[i];
-                if (currencyId == CurrencyType.None)
-                    continue;
+                for (byte i = 0; i < itemEntry.CurrencyTypeId.Length; i++)
+                {
+                    CurrencyType currencyType = info.GetVendorBuyCurrency(i);
+                    if (currencyType == CurrencyType.None)
+                        continue;
 
-                ulong currencyAmount = (ulong)(itemEntry.CurrencyAmount[i] * costMultiplier);
-                if (!session.Player.CurrencyManager.CanAfford(currencyId, currencyAmount))
-                    return;
+                    ulong cost = info.GetVendorBuyAmount(i) * vendorPurchase.VendorItemQty;
+                    if (currencyType == CurrencyType.Credits)
+                        cost *= (ulong)Math.Ceiling(vendorInfo.BuyPriceMultiplier);
 
-                currencyChanges.Add((currencyId, currencyAmount));
+                    vendorItemPurchaseCost.AddCurrencyCost(currencyType, cost);
+                }
             }
-            
-            foreach ((CurrencyType currencyTypeId, ulong currencyAmount) in currencyChanges)
-                session.Player.CurrencyManager.CurrencySubtractAmount(currencyTypeId, currencyAmount);
+            else
+            {
+                void AddExtraCost(ItemExtraCostType type, uint id, uint cost)
+                {
+                    switch (type)
+                    {
+                        case ItemExtraCostType.Item:
+                            vendorItemPurchaseCost.AddItemCost(id, cost);
+                            break;
+                        case ItemExtraCostType.Currency:
+                            vendorItemPurchaseCost.AddCurrencyCost((CurrencyType)id, cost);
+                            break;
+                        case ItemExtraCostType.AccountCurrency:
+                            vendorItemPurchaseCost.AddAccountCurrencyCost((AccountCurrencyType)id, cost);
+                            break;
+                    }
+                }
 
+                AddExtraCost(vendorItem.ExtraCost1Type, vendorItem.ExtraCost1ItemOrCurrencyId, vendorItem.ExtraCost1Quantity);
+                AddExtraCost(vendorItem.ExtraCost2Type, vendorItem.ExtraCost2ItemOrCurrencyId, vendorItem.ExtraCost2Quantity);
+            }
+
+            if (!vendorItemPurchaseCost.CanAfford(session.Player))
+                return;
+
+            vendorItemPurchaseCost.Charge(session.Player);
             session.Player.Inventory.ItemCreate(InventoryLocation.Inventory, itemEntry.Id, vendorPurchase.VendorItemQty * itemEntry.BuyFromVendorStackCount);
         }
 
@@ -104,7 +139,11 @@ namespace NexusForever.WorldServer.Network.Message.Handler
             if (vendorInfo == null)
                 return;
 
-            IItemInfo info = session.Player.Inventory.GetItem(vendorSell.ItemLocation).Info;
+            IItem item = session.Player.Inventory.GetItem(vendorSell.ItemLocation);
+            if (item == null)
+                return;
+
+            IItemInfo info = item.Info;
             if (info == null)
                 return;
 
@@ -123,12 +162,13 @@ namespace NexusForever.WorldServer.Network.Message.Handler
             }
 
             // TODO Insert calculation for cost here
+            currencyChange.Add((CurrencyType.Credits, (ulong)(item.GetVendorSellAmount(0) * costMultiplier)));
 
             foreach ((CurrencyType currencyTypeId, ulong currencyAmount) in currencyChange)
                 session.Player.CurrencyManager.CurrencyAddAmount(currencyTypeId, currencyAmount);
 
             // TODO Figure out why this is showing "You deleted [item]"
-            IItem soldItem = session.Player.Inventory.ItemDelete(vendorSell.ItemLocation);
+            IItem soldItem = session.Player.Inventory.ItemDelete(vendorSell.ItemLocation, ItemUpdateReason.Vendor);
             BuybackManager.Instance.AddItem(session.Player, soldItem, vendorSell.Quantity, currencyChange);
         }
 
@@ -140,6 +180,11 @@ namespace NexusForever.WorldServer.Network.Message.Handler
                 return;
 
             //TODO Ensure player has room in inventory
+            if (session.Player.Inventory.GetInventorySlotsRemaining(InventoryLocation.Inventory) < 1)
+            {
+                session.Player.SendGenericError(GenericError.ItemInventoryFull);
+                return;
+            }
 
             // do all sanity checks before modifying currency
             foreach ((CurrencyType currencyTypeId, ulong currencyAmount) in buybackItem.CurrencyChange)

@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Numerics;
+using Microsoft.Extensions.DependencyInjection;
 using NexusForever.Database.World.Model;
 using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Abstract.Map;
@@ -31,7 +32,7 @@ namespace NexusForever.Game.Map
         /// <summary>
         /// Distance between a <see cref="IPlayer"/> and a <see cref="IGridEntity"/> before the entity can be seen.
         /// </summary>
-        public virtual float VisionRange { get; protected set; } = DefaultVisionRange;
+        public virtual float? VisionRange { get; protected set; } = DefaultVisionRange;
 
         public WorldEntry Entry { get; private set; }
         public MapFile File { get; private set; }
@@ -46,6 +47,18 @@ namespace NexusForever.Game.Map
         private IEntityCache entityCache;
 
         protected IScriptCollection scriptCollection;
+
+        #region Dependency Injection
+
+        private readonly IEntityFactory entityFactory;
+
+        public BaseMap()
+        {
+            // TODO: replace once maps are added to DI container
+            entityFactory = LegacyServiceProvider.Provider.GetService<IEntityFactory>();
+        }
+
+        #endregion
 
         /// <summary>
         /// Initialise <see cref="IBaseMap"/> with <see cref="WorldEntry"/>.
@@ -238,25 +251,31 @@ namespace NexusForever.Game.Map
         }
 
         /// <summary>
-        /// Return all <see cref="IGridEntity"/>'s from <see cref="Vector3"/> in range that satisfy <see cref="ISearchCheck"/>.
+        /// Return all <see cref="IGridEntity"/>'s from <see cref="Vector3"/> in range that satisfy <see cref="ISearchCheck{T}"/>.
         /// </summary>
-        public void Search(Vector3 vector, float radius, ISearchCheck check, out List<IGridEntity> intersectedEntities)
+        public IEnumerable<T> Search<T>(Vector3 vector, float? radius, ISearchCheck<T> check) where T : IGridEntity
         {
-            // negative radius is unlimited distance
-            if (radius < 0)
+            // no radius is unlimited distance
+            if (radius == null)
             {
-                intersectedEntities = entities.Values.ToList();
-                return;
+                foreach (T entity in entities.Values.OfType<T>().Where(check.CheckEntity))
+                    yield return entity;
+                yield break;
             }
 
-            intersectedEntities = new List<IGridEntity>();
-            for (float z = vector.Z - radius; z < vector.Z + radius + MapDefines.GridCellSize; z += MapDefines.GridCellSize)
+            for (float z = vector.Z - radius.Value; z < vector.Z + radius.Value + MapDefines.GridCellSize; z += MapDefines.GridCellSize)
             {
-                for (float x = vector.X - radius; x < vector.X + radius + MapDefines.GridCellSize; x += MapDefines.GridCellSize)
+                for (float x = vector.X - radius.Value; x < vector.X + radius.Value + MapDefines.GridCellSize; x += MapDefines.GridCellSize)
                 {
                     var searchVector = new Vector3(x, 0f, z);
+
                     // don't activate new grids during search
-                    GetGrid(searchVector)?.Search(searchVector, check, intersectedEntities);
+                    IMapGrid grid = GetGrid(searchVector);
+                    if (grid == null)
+                        continue;
+
+                    foreach (T entity in grid.Search(searchVector, check))
+                        yield return entity;
                 }
             }
         }
@@ -264,19 +283,19 @@ namespace NexusForever.Game.Map
         /// <summary>
         /// Return all <see cref="IMapGrid"/>'s from <see cref="Vector3"/> in range.
         /// </summary>
-        public void GridSearch(Vector3 vector, float radius, out List<IMapGrid> intersectedGrids)
+        public void GridSearch(Vector3 vector, float? radius, out List<IMapGrid> intersectedGrids)
         {
             // negative radius is unlimited distance
-            if (radius < 0)
+            if (radius == null)
             {
                 intersectedGrids = GetActiveGrids().ToList();
                 return;
             }
 
             intersectedGrids = new List<IMapGrid>();
-            for (float z = vector.Z - radius; z < vector.Z + radius + MapDefines.GridSize; z += MapDefines.GridSize)
+            for (float z = vector.Z - radius.Value; z < vector.Z + radius.Value + MapDefines.GridSize; z += MapDefines.GridSize)
             {
-                for (float x = vector.X - radius; x < vector.X + radius + MapDefines.GridSize; x += MapDefines.GridSize)
+                for (float x = vector.X - radius.Value; x < vector.X + radius.Value + MapDefines.GridSize; x += MapDefines.GridSize)
                 {
                     IMapGrid grid = GetGrid(new Vector3(x, 0f, z));
                     if (grid != null)
@@ -379,8 +398,7 @@ namespace NexusForever.Game.Map
         {
             foreach (EntityModel model in entityCache.GetEntities(gridX, gridZ))
             {
-                // non issue once all entities types are handled
-                IWorldEntity entity = EntityManager.Instance.NewEntity((EntityType)model.Type) ?? EntityManager.Instance.NewEntity(EntityType.Simple);
+                IWorldEntity entity = entityFactory.CreateWorldEntity(model.Type);
                 entity.Initialise(model);
 
                 var position = new MapPosition
@@ -423,7 +441,7 @@ namespace NexusForever.Game.Map
             entity.OnAddToMap(this, guid, vector);
             scriptCollection?.Invoke<IMapScript>(s => s.OnAddToMap(entity));
 
-            log.Trace($"Added entity {entity.Guid} to map {Entry.Id}.");
+            log.Trace($"Added entity {entity.Guid} to map {Entry.Id} at {vector.X},{vector.Y},{vector.Z}.");
         }
 
         protected virtual void RemoveEntity(IGridEntity entity)
@@ -468,6 +486,15 @@ namespace NexusForever.Game.Map
         {
             // TODO: handle cases for water and props
             return File.GetTerrainHeight(new Vector3(x, 0, z));
+        }
+
+        /// <summary>
+        /// Return <see cref="ResurrectionType"/> applicable to this map.
+        /// </summary>
+        public virtual ResurrectionType GetResurrectionType()
+        {
+            // TODO: add support for Holocrypts and instances
+            return ResurrectionType.None;
         }
     }
 }

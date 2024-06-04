@@ -319,6 +319,38 @@ namespace NexusForever.Database.Auth.Migrations
                     b.ToTable("account_role", (string)null);
                 });
 
+            modelBuilder.Entity("NexusForever.Database.Auth.Model.AccountSuspensionModel", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(10) unsigned")
+                        .HasDefaultValue(0u)
+                        .HasColumnName("id");
+
+                    b.Property<uint>("BanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(10) unsigned")
+                        .HasColumnName("banId");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime")
+                        .HasColumnName("endTime");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("StartTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("startTime")
+                        .HasDefaultValueSql("current_timestamp()");
+
+                    b.HasKey("Id", "BanId")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("account_suspension", (string)null);
+                });
+
             modelBuilder.Entity("NexusForever.Database.Auth.Model.PermissionModel", b =>
                 {
                     b.Property<uint>("Id")
@@ -910,6 +942,51 @@ namespace NexusForever.Database.Auth.Migrations
                         },
                         new
                         {
+                            Id = 117u,
+                            Name = "Category: Ban"
+                        },
+                        new
+                        {
+                            Id = 118u,
+                            Name = "Category: BanAccount"
+                        },
+                        new
+                        {
+                            Id = 119u,
+                            Name = "Command: BanAccountPlayer"
+                        },
+                        new
+                        {
+                            Id = 120u,
+                            Name = "Command: BanAccountCharacter"
+                        },
+                        new
+                        {
+                            Id = 121u,
+                            Name = "Category: EntityThreat"
+                        },
+                        new
+                        {
+                            Id = 122u,
+                            Name = "Command: EntityThreatAdjust"
+                        },
+                        new
+                        {
+                            Id = 123u,
+                            Name = "Command: EntityThreatList"
+                        },
+                        new
+                        {
+                            Id = 124u,
+                            Name = "Command: EntityThreatClear"
+                        },
+                        new
+                        {
+                            Id = 125u,
+                            Name = "Command: EntityThreatRemove"
+                        },
+                        new
+                        {
                             Id = 10000u,
                             Name = "Other: InstantLogout"
                         },
@@ -1202,6 +1279,18 @@ namespace NexusForever.Database.Auth.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("NexusForever.Database.Auth.Model.AccountSuspensionModel", b =>
+                {
+                    b.HasOne("NexusForever.Database.Auth.Model.AccountModel", "Account")
+                        .WithMany("AccountSuspension")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__account_suspension_account_id__account_id");
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("NexusForever.Database.Auth.Model.RolePermissionModel", b =>
                 {
                     b.HasOne("NexusForever.Database.Auth.Model.RoleModel", "Role")
@@ -1238,6 +1327,8 @@ namespace NexusForever.Database.Auth.Migrations
                     b.Navigation("AccountPermission");
 
                     b.Navigation("AccountRole");
+
+                    b.Navigation("AccountSuspension");
                 });
 
             modelBuilder.Entity("NexusForever.Database.Auth.Model.PermissionModel", b =>

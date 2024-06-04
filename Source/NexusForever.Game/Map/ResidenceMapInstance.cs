@@ -1,4 +1,5 @@
 using System.Numerics;
+using Microsoft.Extensions.DependencyInjection;
 using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Abstract.Housing;
 using NexusForever.Game.Abstract.Map;
@@ -12,6 +13,7 @@ using NexusForever.Network;
 using NexusForever.Network.World.Message.Model;
 using NexusForever.Network.World.Message.Model.Shared;
 using NexusForever.Network.World.Message.Static;
+using NexusForever.Shared;
 using NLog;
 
 namespace NexusForever.Game.Map
@@ -21,9 +23,21 @@ namespace NexusForever.Game.Map
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
         // housing maps have unlimited vision range.
-        public override float VisionRange { get; protected set; } = -1f;
+        public override float? VisionRange { get; protected set; } = null;
 
         private readonly Dictionary<ulong, IResidence> residences = new();
+
+        #region Dependency Injection
+
+        private readonly IEntityFactory entityFactory;
+
+        public ResidenceMapInstance()
+        {
+            // TODO: replace when maps are added to DI container
+            entityFactory = LegacyServiceProvider.Provider.GetService<IEntityFactory>();
+        }
+
+        #endregion
 
         /// <summary>
         /// Initialise <see cref="IResidenceMapInstance"/> with <see cref="IResidence"/>.
@@ -47,7 +61,8 @@ namespace NexusForever.Game.Map
 
         private void AddPlugEntity(IPlot plot)
         {
-            var plug = new Plug(plot.PlotInfoEntry, plot.PlugItemEntry);
+            var plug = entityFactory.CreateEntity<IPlugEntity>();
+            plug.Initialise(plot.PlotInfoEntry, plot.PlugItemEntry);
             plot.PlugEntity = plug;
 
             EnqueueAdd(plug, new MapPosition

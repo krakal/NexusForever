@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using NexusForever.Database.Auth;
 using NexusForever.Database.Character;
+using NexusForever.Database.Character.Model;
 using NexusForever.Game.Abstract.Account;
 using NexusForever.Game.Abstract.Achievement;
 using NexusForever.Game.Abstract.Group;
@@ -38,18 +39,15 @@ namespace NexusForever.Game.Abstract.Entity
         double TimePlayedLevel { get; }
         double TimePlayedSession { get; }
 
+        void Initialise(IGameSession session, IAccount account, CharacterModel model);
+
         /// <summary>
         /// Guid of the <see cref="IWorldEntity"/> that currently being controlled by the <see cref="IPlayer"/>.
         /// </summary>
-        uint ControlGuid { get; }
+        uint? ControlGuid { get; }
 
         /// <summary>
-        /// Guid of the <see cref="IVehicle"/> the <see cref="IPlayer"/> is a passenger on.
-        /// </summary>
-        uint VehicleGuid { get; set; }
-
-        /// <summary>
-        /// Guid of the <see cref="IVanityPet"/> currently summoned by the <see cref="IPlayer"/>.
+        /// Guid of the <see cref="IPetEntity"/> currently summoned by the <see cref="IPlayer"/>.
         /// </summary>
         uint? VanityPetGuid { get; set; }
 
@@ -94,6 +92,7 @@ namespace NexusForever.Game.Abstract.Entity
         ICharacterEntitlementManager EntitlementManager { get; }
         ILogoutManager LogoutManager { get; }
         IAppearanceManager AppearanceManager { get; }
+        IResurrectionManager ResurrectionManager { get; }
 
         IVendorInfo SelectedVendorInfo { get; set; }
 
@@ -146,6 +145,11 @@ namespace NexusForever.Game.Abstract.Entity
         /// Invoked when <see cref="IPlayer"/> teleport fails.
         /// </summary>
         void OnTeleportToFailed(GenericError error);
+
+        /// <summary>
+        /// Invoked when <see cref="IPlayer"/> has finished loading and is ready to enter world.
+        /// </summary>
+        void OnEnteredWorld();
 
         /// <summary>
         /// Make <see cref="IPlayer"/> sit on provided <see cref="IWorldEntity"/>.

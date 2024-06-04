@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Xml.Linq;
+using Microsoft.EntityFrameworkCore;
 using NexusForever.Database.Auth.Model;
 using NexusForever.Database.Configuration.Model;
 
@@ -14,6 +15,7 @@ namespace NexusForever.Database.Auth
         public DbSet<AccountKeybindingModel> AccountKeybinding { get; set; }
         public DbSet<AccountPermissionModel> AccountPermission { get; set; }
         public DbSet<AccountRoleModel> AccountRole { get; set; }
+        public DbSet<AccountSuspensionModel> AccountSuspension { get; set; }
         public DbSet<PermissionModel> Permission { get; set; }
         public DbSet<RoleModel> Role { get; set; }
         public DbSet<RolePermissionModel> RolePermission { get; set; }
@@ -338,6 +340,39 @@ namespace NexusForever.Database.Auth
                     .WithMany(f => f.AccountRole)
                     .HasForeignKey(e => e.RoleId)
                     .HasConstraintName("FK__account_role_role_id__role_id");
+            });
+
+            modelBuilder.Entity<AccountSuspensionModel>(entity =>
+            {
+                entity.ToTable("account_suspension");
+
+                entity.HasKey(e => new { e.Id, e.BanId })
+                    .HasName("PRIMARY");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasColumnType("int(10) unsigned")
+                    .HasDefaultValue(0);
+
+                entity.Property(e => e.BanId)
+                    .HasColumnName("banId")
+                    .HasColumnType("int(10) unsigned")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.StartTime)
+                    .HasColumnName("startTime")
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("current_timestamp()");
+
+                entity.Property(e => e.EndTime)
+                    .HasColumnName("endTime")
+                    .HasColumnType("datetime")
+                    .HasDefaultValue(null);
+
+                entity.HasOne(e => e.Account)
+                    .WithMany(f => f.AccountSuspension)
+                    .HasForeignKey(e => e.Id)
+                    .HasConstraintName("FK__account_suspension_account_id__account_id");
             });
 
             modelBuilder.Entity<PermissionModel>(entity =>
@@ -924,6 +959,51 @@ namespace NexusForever.Database.Auth
                     {
                         Id   = 115,
                         Name = "Command: ScriptAdd"
+                    },
+                    new PermissionModel()
+                    {
+                        Id   = 117,
+                        Name = "Category: Ban"
+                    },
+                    new PermissionModel()
+                    {
+                        Id   = 118,
+                        Name = "Category: BanAccount"
+                    },
+                    new PermissionModel()
+                    {
+                        Id   = 119,
+                        Name = "Command: BanAccountPlayer"
+                    },
+                    new PermissionModel()
+                    {
+                        Id   = 120,
+                        Name = "Command: BanAccountCharacter"
+                    },
+                    new PermissionModel()
+                    {
+                        Id   = 121,
+                        Name = "Category: EntityThreat"
+                    },
+                    new PermissionModel()
+                    {
+                        Id   = 122,
+                        Name = "Command: EntityThreatAdjust"
+                    },
+                    new PermissionModel
+                    {
+                        Id   = 123,
+                        Name = "Command: EntityThreatList"
+                    },
+                    new PermissionModel
+                    {
+                        Id   = 124,
+                        Name = "Command: EntityThreatClear"
+                    },
+                    new PermissionModel
+                    {
+                        Id   = 125,
+                        Name = "Command: EntityThreatRemove"
                     },
                     new PermissionModel
                     {

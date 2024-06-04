@@ -4,8 +4,6 @@ using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Abstract.Map;
 using NexusForever.Game.Map;
 using NexusForever.Game.Map.Search;
-using NexusForever.GameTable;
-using NexusForever.GameTable.Model;
 using NexusForever.Script;
 using NexusForever.Script.Template;
 using NexusForever.Script.Template.Collection;
@@ -17,10 +15,14 @@ namespace NexusForever.Game.Entity
     {
         public uint Guid { get; protected set; }
         public IBaseMap Map { get; private set; }
-        public WorldZoneEntry Zone { get; private set; }
         public Vector3 Position { get; protected set; }
 
         public IMapInfo PreviousMap { get; private set; }
+
+        /// <summary>
+        /// Determines if the <see cref="IGridEntity"/> is on a <see cref="IBaseMap"/>.
+        /// </summary>
+        public bool InWorld => Map != null;
 
         /// <summary>
         /// Distance between <see cref="IGridEntity"/> and a <see cref="IMapGrid"/> for activation.
@@ -137,15 +139,6 @@ namespace NexusForever.Game.Entity
             Position = vector;
             UpdateVision();
             UpdateGridVision();
-
-            uint? worldAreaId = Map.File.GetWorldAreaId(vector);
-            if (worldAreaId.HasValue && Zone?.Id != worldAreaId)
-            {
-                Zone = GameTableManager.Instance.WorldZone.GetEntry(worldAreaId.Value);
-                OnZoneUpdate();
-
-                scriptCollection?.Invoke<IGridEntityScript>(s => s.OnEnterZone(this, Zone.Id));
-            }
         }
 
         /// <summary>
@@ -212,10 +205,10 @@ namespace NexusForever.Game.Entity
         /// </summary>
         private void UpdateVision()
         {
-            Map.Search(Position, Map.VisionRange, new SearchCheckRange(Position, Map.VisionRange), out List<IGridEntity> intersectedEntities);
+            List<IGridEntity> entities = Map.Search(Position, Map.VisionRange, new SearchCheckRange<IGridEntity>(Position, Map.VisionRange)).ToList();
 
             // new entities now in vision range
-            foreach (IGridEntity entity in intersectedEntities.Except(visibleEntities.Values))
+            foreach (IGridEntity entity in entities.Except(visibleEntities.Values))
             {
                 AddVisible(entity);
                 if (entity != this)
@@ -223,7 +216,7 @@ namespace NexusForever.Game.Entity
             }
 
             // old entities now out of vision range
-            foreach (IGridEntity entity in visibleEntities.Values.Except(intersectedEntities).ToList())
+            foreach (IGridEntity entity in visibleEntities.Values.Except(entities).ToList())
             {
                 RemoveVisible(entity);
                 entity.RemoveVisible(this);

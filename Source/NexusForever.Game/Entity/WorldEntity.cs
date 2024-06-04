@@ -5,7 +5,6 @@ using NexusForever.Game.Abstract.Entity.Movement;
 using NexusForever.Game.Abstract.Map;
 using NexusForever.Game.Abstract.Reputation;
 using NexusForever.Game.Abstract.Social;
-using NexusForever.Game.Entity.Movement;
 using NexusForever.Game.Map.Search;
 using NexusForever.Game.Reputation;
 using NexusForever.Game.Social;
@@ -14,19 +13,27 @@ using NexusForever.Game.Static.Reputation;
 using NexusForever.Game.Static.Social;
 using NexusForever.GameTable;
 using NexusForever.GameTable.Model;
+using NexusForever.GameTable.Static;
 using NexusForever.Network.Message;
 using NexusForever.Network.World.Entity;
 using NexusForever.Network.World.Message.Model;
 using NexusForever.Network.World.Message.Model.Shared;
-using NexusForever.Shared.Game;
+using NexusForever.Script.Template;
 
 namespace NexusForever.Game.Entity
 {
     public abstract class WorldEntity : GridEntity, IWorldEntity
     {
-        public EntityType Type { get; }
+        public abstract EntityType Type { get; }
         public EntityCreateFlag CreateFlags { get; set; }
-        public Vector3 Rotation { get; set; } = Vector3.Zero;
+
+        public Vector3 Rotation
+        {
+            get => MovementManager.GetRotation();
+            set => MovementManager.SetRotation(value, false);
+        }
+
+        public WorldZoneEntry Zone { get; private set; }
         public uint EntityId { get; protected set; }
 
         public uint CreatureId
@@ -71,6 +78,8 @@ namespace NexusForever.Game.Entity
         public ulong ActivePropId { get; private set; }
         public ushort WorldSocketId { get; private set; }
 
+        public EntitySplineModel Spline { get; private set; }
+
         public Vector3 LeashPosition { get; protected set; }
         public float LeashRange { get; protected set; } = 15f;
         public IMovementManager MovementManager { get; private set; }
@@ -78,7 +87,7 @@ namespace NexusForever.Game.Entity
         public virtual uint Health
         {
             get => GetStatInteger(Stat.Health) ?? 0u;
-            set
+            protected set
             {
                 SetStat(Stat.Health, Math.Clamp(value, 0u, MaxHealth)); // TODO: Confirm MaxHealth is actually the maximum health would be at.
                 EnqueueToVisible(new ServerEntityHealthUpdate
@@ -125,48 +134,85 @@ namespace NexusForever.Game.Entity
             set => SetStat(Stat.Sheathed, Convert.ToUInt32(value));
         }
 
+        public StandState StandState
+        {
+            get => (StandState)(GetStatInteger(Stat.StandState) ?? 0u);
+            set
+            {
+                SetStat(Stat.StandState, (uint)value);
+
+                EnqueueToVisible(new ServerEmote
+                {
+                    Guid       = Guid,
+                    StandState = value
+                });
+            }
+        }
+
         /// <summary>
-        /// Guid of the <see cref="IWorldEntity"/> currently targeted.
+        /// Collection of guids currently targeting this <see cref="IWorldEntity"/>.
         /// </summary>
-        public uint TargetGuid { get; set; }
+        public IEnumerable<uint> TargetingGuids => targetingGuids;
+
+        private readonly HashSet<uint> targetingGuids = new();
 
         /// <summary>
         /// Guid of the <see cref="IPlayer"/> currently controlling this <see cref="IWorldEntity"/>.
         /// </summary>
-        public uint ControllerGuid { get; set; }
+        public uint? ControllerGuid
+        {
+            get => controllerGuid;
+            set
+            {
+                controllerGuid = value;
+                MovementManager.ServerControl = value == null;
+            }
+        }
+
+        private uint? controllerGuid;
 
         /// <summary>
-        /// Initial stab at a timer to regenerate Health & Shield values.
+        /// Guid of the <see cref="IWorldEntity"/> the <see cref="IWorldEntity"/> is a passenger on.
         /// </summary>
-        private UpdateTimer statUpdateTimer = new UpdateTimer(0.25); // TODO: Long-term this should be absorbed into individual timers for each Stat regeneration method
+        public uint? PlatformGuid
+        {
+            get => MovementManager.GetPlatform();
+            private set => MovementManager.SetPlatform(value);
+        }
+
+        /// <summary>
+        /// Collection of guids currently passengers on this <see cref="IWorldEntity"/>.
+        /// </summary>
+        public IEnumerable<uint> PlatformPassengerGuids => platformPassengerGuids;
+        private readonly HashSet<uint> platformPassengerGuids = new();
 
         protected readonly Dictionary<Stat, IStatValue> stats = new Dictionary<Stat, IStatValue>();
 
         private readonly Dictionary<Property, IPropertyValue> properties = new ();
         private readonly HashSet<Property> dirtyProperties = new();
-        private bool invokePropertyUpdate = false;
+        private bool invokeStatBalance = false;
 
         private bool emitVisual;
         private readonly Dictionary<ItemSlot, IItemVisual> itemVisuals = new();
 
-        /// <summary>
-        /// Create a new <see cref="IWorldEntity"/> with supplied <see cref="EntityType"/>.
-        /// </summary>
-        protected WorldEntity(EntityType type)
+
+        #region Dependency Injection
+
+        public WorldEntity(
+            IMovementManager movementManager)
         {
-            Type = type;
+            MovementManager = movementManager;
+            MovementManager.Initialise(this);
         }
+
+        #endregion
 
         /// <summary>
         /// Initialise <see cref="IWorldEntity"/> with supplied data.
         /// </summary>
-        public void Initialise(uint creatureId, uint displayInfo, ushort outfitInfo)
+        public void Initialise(uint creatureId)
         {
-            CreatureId  = creatureId;
-            DisplayInfo = displayInfo;
-            OutfitInfo  = outfitInfo;
-
-            SetVisualEmit(false);
+            CreatureId = creatureId;
         }
 
         /// <summary>
@@ -183,27 +229,62 @@ namespace NexusForever.Game.Entity
             Faction2      = (Faction)model.Faction2;
             ActivePropId  = model.ActivePropId;
             WorldSocketId = model.WorldSocketId;
+            Spline        = model.EntitySpline;
 
             foreach (EntityStatModel statModel in model.EntityStat)
                 stats.Add((Stat)statModel.Stat, new StatValue(statModel));
 
+            CalculateDefaultProperties();
+
             // TODO: handle this better
             Health = MaxHealth;
-
-            SetVisualEmit(false);
+            Shield = MaxShieldCapacity;
         }
 
+        /// <summary>
+        /// Invoked when <see cref="IWorldEntity"/> is added to <see cref="IBaseMap"/>.
+        /// </summary>
         public override void OnAddToMap(IBaseMap map, uint guid, Vector3 vector)
         {
-            LeashPosition   = vector;
-            MovementManager = new MovementManager(this, vector, Rotation);
+            LeashPosition = vector;
+            MovementManager.SetPosition(vector, false);
+
             base.OnAddToMap(map, guid, vector);
         }
 
+        /// <summary>
+        /// Invoked when <see cref="IWorldEntity"/> is removed from <see cref="IBaseMap"/>.
+        /// </summary>
         public override void OnRemoveFromMap()
         {
+            foreach (uint platformPassengerGuid in platformPassengerGuids.ToList())
+            {
+                IWorldEntity worldEntity = Map.GetEntity<IWorldEntity>(platformPassengerGuid);
+                if (worldEntity == null)
+                    continue;
+
+                worldEntity.SetPlatform(null);
+                worldEntity.MovementManager.SetPosition(Position, false);
+                worldEntity.MovementManager.SetRotation(Rotation, false);
+            }
+
             base.OnRemoveFromMap();
-            MovementManager = null;
+        }
+
+        public override void OnRelocate(Vector3 vector)
+        {
+            base.OnRelocate(vector);
+
+            uint? worldAreaId = Map.File.GetWorldAreaId(vector);
+            if (worldAreaId.HasValue && Zone?.Id != worldAreaId)
+            {
+                Zone = GameTableManager.Instance.WorldZone.GetEntry(worldAreaId.Value);
+                if (Zone != null)
+                {
+                    OnZoneUpdate();
+                    scriptCollection?.Invoke<IWorldEntityScript>(s => s.OnEnterZone(this, Zone.Id));
+                }
+            }
         }
 
         /// <summary>
@@ -220,13 +301,6 @@ namespace NexusForever.Game.Entity
                 SetVisualEmit(false);
             }
 
-            statUpdateTimer.Update(lastTick);
-            if (statUpdateTimer.HasElapsed)
-            {
-                HandleStatUpdate(lastTick);
-                statUpdateTimer.Reset();
-            }
-
             if (dirtyProperties.Count != 0)
             {
                 EnqueueToVisible(BuildPropertyUpdates(), true);
@@ -236,16 +310,14 @@ namespace NexusForever.Game.Entity
 
         protected abstract IEntityModel BuildEntityModel();
 
-        public virtual ServerEntityCreate BuildCreatePacket()
+        public virtual ServerEntityCreate BuildCreatePacket(bool isLoading)
         {
-            dirtyProperties.Clear();
-
-            ServerEntityCreate entityCreatePacket =  new ServerEntityCreate
+            var entityCreatePacket = new ServerEntityCreate
             {
                 Guid         = Guid,
                 Type         = Type,
                 EntityModel  = BuildEntityModel(),
-                CreateFlags  = (byte)CreateFlags,
+                CreateFlags  = CreateFlags,
                 Stats        = stats.Values
                     .Select(s => new StatValueInitial
                     {
@@ -255,7 +327,8 @@ namespace NexusForever.Game.Entity
                         Data  = s.Data
                     })
                     .ToList(),
-                Commands     = MovementManager.ToList(),
+                Time         = MovementManager.GetTime(),
+                Commands     = (isLoading && MovementManager.RequiresSynchronisation ? MovementManager.GetInitialNetworkEntityCommands() : MovementManager.GetNetworkEntityCommands()).ToList(),
                 VisibleItems = itemVisuals
                     .Select(v => v.Value.Build())
                     .ToList(),
@@ -270,7 +343,7 @@ namespace NexusForever.Game.Entity
 
             // Plugs should not have this portion of the packet set by this Class. The Plug Class should set it itself.
             // This is in large part due to the way Plugs are tied either to a DecorId OR Guid. Other entities do not have the same issue.
-            if (!(this is IPlug))
+            if (!(this is IPlugEntity))
             {
                 if (ActivePropId > 0 || WorldSocketId > 0)
                 {
@@ -317,7 +390,20 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public void SetVisualEmit(bool status)
         {
+            // don't broadcast visual changes if not in world, visuals will be sent with creation packet.
+            if (!InWorld)
+                return;
+
             emitVisual = status;
+        }
+
+        /// <summary>
+        /// Set visual info of <see cref="IWorldEntity"/> with supplied data.
+        /// </summary>
+        public void SetVisualInfo(uint displayInfo, ushort outfitInfo)
+        {
+            DisplayInfo = displayInfo;
+            OutfitInfo = outfitInfo;
         }
 
         /// <summary>
@@ -378,23 +464,70 @@ namespace NexusForever.Game.Entity
             return properties.Values;
         }
 
-        protected IPropertyValue CreateProperty(Property property, float defaultValue)
+        /// <summary>
+        /// Get <see cref="IPropertyValue"/> for <see cref="IWorldEntity"/> <see cref="Property"/>.
+        /// </summary>
+        /// <remarks>
+        /// If <see cref="Property"/> doesn't exist it will be created with the default value specified in the GameTable.
+        /// </remarks>
+        public IPropertyValue GetProperty(Property property)
         {
-            IPropertyValue propertyValue = new PropertyValue(property, defaultValue);
-            properties.Add(property, propertyValue);
+            if (!properties.TryGetValue(property, out IPropertyValue propertyValue))
+            {
+                propertyValue = new PropertyValue(property, CalculateDefaultProperty(property));
+                properties.Add(property, propertyValue);
+            }
 
             return propertyValue;
         }
 
         /// <summary>
-        /// Get <see cref="IPropertyValue"/> for <see cref="IWorldEntity"/> <see cref="Property"/>.
+        /// Calculate default property value for supplied <see cref="Property"/>.
         /// </summary>
-        public IPropertyValue GetProperty(Property property)
+        /// <remarks>
+        /// Default property values are not sent to the client, they are also calculated by the client and are replaced by any property updates.
+        /// </remarks>
+        protected virtual float CalculateDefaultProperty(Property property)
         {
-            if (!properties.TryGetValue(property, out IPropertyValue propertyValue))
-                propertyValue = CreateProperty(property, GameTableManager.Instance.UnitProperty2.GetEntry((ulong)property)?.DefaultValue ?? 0f);
+            UnitProperty2Entry entry = GameTableManager.Instance.UnitProperty2.GetEntry((uint)property);
+            if (entry == null)
+                return 0f;
 
-            return propertyValue;
+            float value = entry.DefaultValue;
+            if ((entry.Flags & UnitPropertyFlags.Static) != 0)
+                return value;
+
+            if (Type == EntityType.Pet)
+                return value;
+
+            // TODO: client also includes mentor level
+            uint level = Level;
+            /*if (MentorLevel.HasValue)
+                level = MentorLevel.Value;
+            else
+                level = Level;*/
+
+            Property levelProperty = property;
+            if (property >= Property.MoveSpeedMultiplier)
+            {
+                // final row is used for anything above property 100
+                level = (uint)GameTableManager.Instance.CreatureLevel.Entries.Length;
+
+                // creature level entry only has 100 columns for properties, wrap around for higher values
+                levelProperty = (Property)(property - Property.MoveSpeedMultiplier);
+            }
+
+            CreatureLevelEntry levelEntry = GameTableManager.Instance.CreatureLevel.GetEntry(level);
+            if (levelEntry == null)
+                return entry.DefaultValue;
+
+            return levelEntry.UnitPropertyValue[(uint)levelProperty];
+        }
+
+        protected void CalculateDefaultProperties()
+        {
+            foreach (Property property in Enum.GetValues<Property>())
+                SetBaseProperty(property, CalculateDefaultProperty(property));
         }
 
         /// <summary>
@@ -427,7 +560,7 @@ namespace NexusForever.Game.Entity
         /// <summary>
         /// Calculate the primary value for <see cref="Property"/>.
         /// </summary>
-        public void CalculateProperty(Property property)
+        protected void CalculateProperty(Property property)
         {
             IPropertyValue propertyValue = GetProperty(property);
             CalculateProperty(propertyValue);
@@ -448,8 +581,9 @@ namespace NexusForever.Game.Entity
             CalculatePropertyValue(propertyValue);
             SetPropertyEmit(propertyValue.Property);
 
-            if (invokePropertyUpdate)
-                OnPropertyUpdate(propertyValue);
+            DependantStatBalance(propertyValue);
+
+            OnPropertyUpdate(propertyValue);
 
             #if DEBUG
             if (this is IPlayer player && !player.IsLoading)
@@ -470,19 +604,23 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public void SetPropertyEmit(Property property)
         {
+            // don't broadcast property changes if not in world, properties will be sent with creation packet.
+            if (!InWorld)
+                return;
+
             dirtyProperties.Add(property);
         }
 
-        protected void SetInvokePropertyUpdate(bool value)
+        protected void SetDependantStatBalance(bool value)
         {
-            invokePropertyUpdate = value;
+            invokeStatBalance = value;
         }
 
-        /// <summary>
-        /// Invoked when <see cref="IWorldEntity"/> has a <see cref="Property"/> updated.
-        /// </summary>
-        protected virtual void OnPropertyUpdate(IPropertyValue propertyValue)
+        protected void DependantStatBalance(IPropertyValue propertyValue)
         {
+            if (!invokeStatBalance)
+                return;
+
             switch (propertyValue.Property)
             {
                 case Property.BaseHealth:
@@ -494,6 +632,14 @@ namespace NexusForever.Game.Entity
                         Shield = MaxShieldCapacity;
                     break;
             }
+        }
+
+        /// <summary>
+        /// Invoked when <see cref="IWorldEntity"/> has a <see cref="Property"/> updated.
+        /// </summary>
+        protected virtual void OnPropertyUpdate(IPropertyValue propertyValue)
+        {
+            // deliberately empty
         }
 
         /// <summary>
@@ -625,21 +771,6 @@ namespace NexusForever.Game.Entity
         }
 
         /// <summary>
-        /// Handles regeneration of Stat Values. Used to provide a hook into the Update method, for future implementation.
-        /// </summary>
-        private void HandleStatUpdate(double lastTick)
-        {
-            // TODO: This should probably get moved to a Calculation Library/Manager at some point. There will be different timers on Stat refreshes, but right now the timer is hardcoded to every 0.25s.
-            // Probably worth considering an Attribute-grouped Class that allows us to run differentt regeneration methods & calculations for each stat.
-
-            if (Health < MaxHealth)
-                Health += (uint)(MaxHealth / 200f);
-
-            if (Shield < MaxShieldCapacity)
-                Shield += (uint)(MaxShieldCapacity * GetPropertyValue(Property.ShieldRegenPct) * statUpdateTimer.Duration);
-        }
-
-        /// <summary>
         /// Enqueue broadcast of <see cref="IWritable"/> to all visible <see cref="IPlayer"/>'s in range.
         /// </summary>
         public void EnqueueToVisible(IWritable message, bool includeSelf = false)
@@ -732,20 +863,79 @@ namespace NexusForever.Game.Entity
         /// <summary>
         /// Broadcast chat message built from <see cref="IChatMessageBuilder"/> to <see cref="IPlayer"/> in supplied range.
         /// </summary>
-        public void Talk(IChatMessageBuilder builder, float range, IGridEntity exclude = null)
+        public void Talk(IChatMessageBuilder builder, float range, IPlayer exclude = null)
         {
             if (Map == null)
                 throw new InvalidOperationException();
 
-            Map.Search(
+            IEnumerable<IPlayer> players = Map.Search(
                 Position,
                 range,
-                new SearchCheckRangePlayerOnly(Position, range, exclude),
-                out List<IGridEntity> intersectedEntities);
+                new SearchCheckRange<IPlayer>(Position, range, exclude));
 
             IWritable message = builder.Build();
-            foreach (IPlayer player in intersectedEntities.Cast<IPlayer>())
+            foreach (IPlayer player in players)
                 player.Session.EnqueueMessageEncrypted(message);
+        }
+
+        /// <summary>
+        /// Invoked when <see cref="IWorldEntity"/> is targeted by another <see cref="IUnitEntity"/>.
+        /// </summary>
+        /// <remarks>
+        /// While any entity can be targeted, only <see cref="IUnitEntity"/> can target.
+        /// </remarks>
+        public virtual void OnTargeted(IUnitEntity source)
+        {
+            targetingGuids.Add(source.Guid);
+        }
+
+        /// <summary>
+        /// Invoked when <see cref="IWorldEntity"/> is untargeted by another <see cref="IUnitEntity"/>.
+        /// </summary>
+        public virtual void OnUntargeted(IUnitEntity source)
+        {
+            targetingGuids.Remove(source.Guid);
+        }
+
+        /// <summary>
+        /// Set platform to suppled <see cref="IWorldEntity"/> with optional position and rotation offsets.
+        /// </summary>
+        public void SetPlatform(IWorldEntity entity, Vector3 position = default, Vector3 rotation = default)
+        {
+            if (PlatformGuid != null)
+            {
+                IWorldEntity platform = Map.GetEntity<IWorldEntity>(PlatformGuid.Value);
+                platform?.RemovePlatformPassenger(this);
+
+                MovementManager.SetPosition(Position, false);
+                MovementManager.SetRotation(Rotation, false);
+            }
+
+            PlatformGuid = entity?.Guid;
+
+            if (entity != null)
+            {
+                entity.AddPlatformPassenger(this);
+
+                MovementManager.SetPosition(position, false);
+                MovementManager.SetRotation(rotation, false);
+            }
+        }
+
+        /// <summary>
+        /// Add <see cref="IWorldEntity"/> as a passenger on this <see cref="IWorldEntity"/>.
+        /// </summary>
+        public void AddPlatformPassenger(IWorldEntity passenger)
+        {
+            platformPassengerGuids.Add(passenger.Guid);
+        }
+
+        /// <summary>
+        /// Remove <see cref="IWorldEntity"/> as a passenger on this <see cref="IWorldEntity"/>.
+        /// </summary>
+        public void RemovePlatformPassenger(IWorldEntity passenger)
+        {
+            platformPassengerGuids.Remove(passenger.Guid);
         }
     }
 }

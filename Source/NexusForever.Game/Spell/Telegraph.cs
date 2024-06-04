@@ -66,8 +66,7 @@ namespace NexusForever.Game.Spell
         /// </summary>
         public IEnumerable<IUnitEntity> GetTargets()
         {
-            Caster.Map.Search(Position, GridSearchSize(), new SearchCheckTelegraph(this, Caster), out List<IGridEntity> targets);
-            return targets.Select(t => t as IUnitEntity);
+            return Caster.Map.Search(Position, GridSearchSize(), new SearchCheckTelegraph(this, Caster));
         }
 
         /// <summary>
@@ -182,9 +181,9 @@ namespace NexusForever.Game.Spell
             if (distance + hitRadius < startRadius)
                 return false;
 
-            float angleRadian = (Position.GetAngle(targetPosition) - Rotation.X).CondenseRadianIntoRotationRadian();
+            float angleRadian = (Position.GetAngle(targetPosition) - Rotation.X).NormaliseRotationRadians();
 
-            float angleDegrees = MathF.Abs(angleRadian.NormaliseRadians().ToDegrees());
+            float angleDegrees = MathF.Abs(angleRadian.NormaliseRotationRadians().ToDegrees());
             if (angleDegrees > angle / 2f || angleDegrees < -angle / 2f)
             {
                 // Checks for edge radius is skipped if the caster is not a Player. This optimises this method, but also allows for player's to dodge attacks appropriately.

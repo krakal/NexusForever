@@ -7,6 +7,7 @@ namespace NexusForever.Network.Message
         ServerHello                     = 0x0003,
         ServerMaxCharacterLevelAchieved = 0x0036,
         ServerPlayerEnteredWorld        = 0x0061,
+        ServerClientEntityUpdateInterval = 0x0070,
         ServerAuthEncrypted             = 0x0076,
         ServerLogoutUpdate              = 0x0092,
         ClientActivateUnitCast          = 0x0097, // not sure about the name - almost the same as 0x00B3, but also initiates 0x07FD
@@ -32,10 +33,12 @@ namespace NexusForever.Network.Message
         ServerDatacubeUpdateList        = 0x00E0,
         ServerDatacubeUpdate            = 0x00E1,
         ServerDatacubeVolumeUpdate      = 0x00E2,
+        ClientResurrectRequest          = 0x00E4,
         ServerCharacterDeleteResult     = 0x00E6,
         ServerInstanceSettings          = 0x00F1, // handler sends 0x00D5 and ClientPlayerMovementSpeedUpdate
         ClientEnteredWorld              = 0x00F2,
         ServerCharacterFlagsUpdated     = 0x00FE,
+        ServerResurrectionState         = 0x0100,
         Server0104                      = 0x0104, // Galactic Archive
         ServerGenericError              = 0x0106,
         ClientGuildHolomarkUpdate       = 0x010C,
@@ -61,6 +64,8 @@ namespace NexusForever.Network.Message
         ClientItemDelete                = 0x0149,
         ClientEntityInteractChair       = 0x014E,
         ClientRequestAmpReset           = 0x0151,
+        ClientResurrectAccept           = 0x015A,
+        ServerResurrectRequest          = 0x015B,
         ClientItemUseLootBag            = 0x015E,
         ServerCharacterSelectFail       = 0x0162,
         ClientSellItemToVendor          = 0x0166,
@@ -92,9 +97,11 @@ namespace NexusForever.Network.Message
         ServerAmpList                   = 0x01A3,
         ServerReputationUpdate          = 0x01A5,
         ServerPathUpdateXP              = 0x01AA,
+        ServerResurrectionUpdate        = 0x01AB,
         ServerExperienceGained          = 0x01AC,
         ServerUnlockVanityPet           = 0x01AE,
         ClientVehicleDisembark          = 0x01AF,
+        ServerResurrectionShow          = 0x01B3,
         ServerZoneMap                   = 0x01B4,
         ServerChatAction                = 0x01B5,
         ServerChatFlag                  = 0x01B7,
@@ -136,6 +143,7 @@ namespace NexusForever.Network.Message
         ServerCinematicActorAngle       = 0x0230,
         ServerCinematicNotify           = 0x0232,
         Server0237                      = 0x0237, // UI related, opens or closes different UI windows (bank, barber, ect...)
+        ClientWatchdogStatistics        = 0x023C,
         ClientPing                      = 0x0241,
         ClientEncrypted                 = 0x0244,
         ServerCombatLog                 = 0x0247,
@@ -150,6 +158,8 @@ namespace NexusForever.Network.Message
         ClientPacked                    = 0x025C, // the same as ClientEncrypted except the contents isn't encrypted?
         ServerPlayerCreate              = 0x025E,
         ServerEntityCreate              = 0x0262,
+        ServerNewCustomerSurveyRequest = 0x033E,
+        ClientCustomerSurveySubmit      = 0x033F,
         ClientCharacterDelete           = 0x0352,
         ServerEntityDestroy             = 0x0355,
         Server0357                      = 0x0357,
@@ -277,7 +287,7 @@ namespace NexusForever.Network.Message
         ServerMovementControl           = 0x0636, // handler sends 0x0635 and 0x063A
         ClientEntityCommand             = 0x0637, // bidirectional? packet has both read and write handlers 
         ServerEntityCommand             = 0x0638, // bidirectional? packet has both read and write handlers
-        Server0639                      = 0x0639, // mount up or something
+        ServerMovementControlRemove     = 0x0639,
         ClientZoneChange                = 0x063A,
         ClientPlayerMovementSpeedUpdate = 0x063B,
         ServerAuthDenied                = 0x063D,
@@ -302,6 +312,7 @@ namespace NexusForever.Network.Message
         ServerPathUnlockResult          = 0x06BE,
         ServerPathCurrentEpisode        = 0x06BF,
         Server068B                      = 0x068B, // pet customization something
+        ClientPetRename                 = 0x068C,
         ServerUnlockPetFlair            = 0x068D,
         ServerChangePetStance           = 0x068F,
         ServerPublicEventStart          = 0x0700,
@@ -349,6 +360,9 @@ namespace NexusForever.Network.Message
         Server0816                      = 0x0816, // spell related: broadcast parts of 0x07FF?
         Server0817                      = 0x0817, // spell related
         Server0818                      = 0x0818,
+        Server081A                      = 0x081A, // spline related
+        Server081B                      = 0x081B, // spline related
+        Server081C                      = 0x081C, // spline related
         ClientStorefrontPurchaseAccount = 0x0828,
         ClientStorefrontPurchaseCharacter = 0x082A,
         ClientStorefrontRequestCatalog  = 0x082D,
@@ -357,7 +371,9 @@ namespace NexusForever.Network.Message
         Server0854                      = 0x0854, // crafting schematic
         Server0856                      = 0x0856, // tradeskills
         ServerVehiclePassengerAdd       = 0x086F,
+        ServerEntityAggroSwitch         = 0x0876,
         ServerEntityCCStateSet          = 0x087F,
+        ServerEntityDeathState          = 0x088C,
         ServerUnitEnteredCombat         = 0x089A,
         Server089B                      = 0x089B, // mount related
         Server08B3                      = 0x08B3,
@@ -365,7 +381,9 @@ namespace NexusForever.Network.Message
         ServerVehiclePassengerRemove    = 0x08C7,
         ServerUnitSetChair              = 0x08CF,
         ServerEntityVisualUpdate        = 0x0905,
-        Server0908                      = 0x0908,
+        ServerEntityTargetUnit          = 0x0908,
+        ServerEntityThreatListUpdate    = 0x0909,
+        ServerEntityThreatUpdate        = 0x090A,
         ServerVendorItemsUpdated        = 0x090B,
         ClientCostumeItemUnlock         = 0x090F,
         ServerSpellAbilityCharges       = 0x0914,

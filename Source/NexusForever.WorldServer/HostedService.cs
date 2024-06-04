@@ -90,7 +90,6 @@ namespace NexusForever.WorldServer
             EntityCommandManager.Instance.Initialise();
             EntityCacheManager.Instance.Initialise();
             FactionManager.Instance.Initialise();
-            GlobalMovementManager.Instance.Initialise();
 
             GlobalCinematicManager.Instance.Initialise();
             ChatFormatManager.Instance.Initialise();

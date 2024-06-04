@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using NexusForever.Cryptography;
 using NexusForever.Database;
 using NexusForever.Database.Auth;
@@ -28,12 +28,15 @@ using NexusForever.Game.Static.Map;
 using NexusForever.Game.Static.RBAC;
 using NexusForever.Game.Static.Reputation;
 using NexusForever.Game.Static.Spell;
+using NexusForever.Game.Static.TextFilter;
+using NexusForever.Game.Text.Filter;
 using NexusForever.GameTable;
 using NexusForever.GameTable.Model;
 using NexusForever.Network;
 using NexusForever.Network.Message;
 using NexusForever.Network.World.Message.Model;
 using NexusForever.Network.World.Message.Static;
+using NexusForever.Shared;
 using NexusForever.Shared.Game.Events;
 using NLog;
 using NetworkMessage = NexusForever.Network.Message.Model.Shared.Message;
@@ -266,7 +269,16 @@ namespace NexusForever.WorldServer.Network.Message.Handler
 
             CharacterModifyResult? GetResult()
             {
-                // TODO: validate name and path
+                // TODO: validate path
+                if (!TextFilterManager.Instance.IsTextValid(characterCreate.Name)
+                    || !TextFilterManager.Instance.IsTextValid(characterCreate.Name, UserText.CharacterName))
+                    return CharacterModifyResult.CreateFailed_InvalidName;
+
+                // UserText.CharacterName checks if there is a space
+                foreach (string name in characterCreate.Name.Split(' '))
+                    if (!TextFilterManager.Instance.IsTextValid(name, UserText.CharacterNamePart))
+                        return CharacterModifyResult.CreateFailed_InvalidName;
+
                 if (DatabaseManager.Instance.GetDatabase<CharacterDatabase>().CharacterNameExists(characterCreate.Name))
                     return CharacterModifyResult.CreateFailed_UniqueName;
 
@@ -580,7 +592,11 @@ namespace NexusForever.WorldServer.Network.Message.Handler
                 return;
             }
 
-            session.Player = new Player(session, session.Account, character);
+            // TODO: needs to be replaced once network handlers aren't static
+            var factory = LegacyServiceProvider.Provider.GetService<IEntityFactory>();
+
+            session.Player = factory.CreateEntity<IPlayer>();
+            session.Player.Initialise(session, session.Account, character);
 
             WorldEntry entry = GameTableManager.Instance.World.GetEntry(character.WorldId);
             if (entry == null)
@@ -652,7 +668,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         [MessageHandler(GameMessageOpcode.ClientEntitySelect)]
         public static void HandleClientTarget(IWorldSession session, ClientEntitySelect target)
         {
-            session.Player.TargetGuid = target.Guid;
+            session.Player.SetTarget(target.Guid > 0 ? target.Guid : null);
         }
 
         [MessageHandler(GameMessageOpcode.ClientReplayLevelRequest)]
@@ -675,7 +691,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         }
 
         [MessageHandler(GameMessageOpcode.ClientRapidTransport)]
-        public static void HandleClientTarget(IWorldSession session, ClientRapidTransport rapidTransport)
+        public static void HandleRapidTransport(IWorldSession session, ClientRapidTransport rapidTransport)
         {
             //TODO: check for cooldown
             //TODO: handle payment

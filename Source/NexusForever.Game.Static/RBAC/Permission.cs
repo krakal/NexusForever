@@ -78,6 +78,11 @@
         EntityProperties            = 45,
         EntityModify                = 60,
         EntityModifyDisplayInfo     = 61,
+        EntityThreat                = 121,
+        EntityThreatAdjust          = 122,
+        EntityThreatList            = 123,
+        EntityThreatClear           = 124,
+        EntityThreatRemove          = 125,
 
         // generic unlock
         Generic                     = 46,
@@ -179,6 +184,12 @@
         ScriptReload                = 113,
         ScriptInfo                  = 114,
         ScriptAdd                   = 115,
+
+        // ban
+        Ban                         = 117,
+        BanAccount                  = 118,
+        BanAccountPlayer            = 119,
+        BanAccountCharacter         = 120,
 
         // non command permissions
         InstantLogout               = 10000,
