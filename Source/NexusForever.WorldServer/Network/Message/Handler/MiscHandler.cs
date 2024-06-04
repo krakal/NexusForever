@@ -7,15 +7,18 @@ using NexusForever.Network;
 using NexusForever.Network.Message;
 using NexusForever.Network.World.Message.Model;
 using NexusForever.Network.World.Message.Model.Shared;
+using NLog;
 
 namespace NexusForever.WorldServer.Network.Message.Handler
 {
     public static class MiscHandler
     {
-        [MessageHandler(GameMessageOpcode.ClientPing)]
-        public static void HandlePing(IWorldSession session, ClientPing ping)
+        [MessageHandler(GameMessageOpcode.ClientOnRealmOrCharacterSelectScreen)]
+        public static void HandleOnRealmOrCharacterSelectScreen(IWorldSession session, ClientOnRealmOrCharacterSelectScreen onSelectScreeen)
         {
-            session.Heartbeat.OnHeartbeat();
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn("On Character Select Screen");
         }
 
         /// <summary>
@@ -122,6 +125,133 @@ namespace NexusForever.WorldServer.Network.Message.Handler
         /// </summary>
         [MessageHandler(GameMessageOpcode.ClientWatchdogStatistics)]
         public static void HandleClientWatchdogStatistics(WorldSession session, ClientWatchdogStatistics watchdogStatistics)
+        {
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientAbilityAndLogOptions)]
+        public static void HandleClientAbilityAndLogOptions(WorldSession session, ClientAbilityAndLogOptions abilityAndLogOptions)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"LogOptionFlags:{abilityAndLogOptions.LogOptionFlags:X}, " +
+                $"AbilityFlags:{abilityAndLogOptions.TargettingAndAbilityFlags:X}, " +
+                $"DisableLogOtherPlayers:{abilityAndLogOptions.LogOtherPlayers}");
+            
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientAbilityOptions)]
+        public static void HandleClientAbilityOptions(WorldSession session, ClientAbilityOptions abilityOptions)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"AbilityFlags:{abilityOptions.TargettingAndAbilityFlags:X}, " +
+                $"ShareChallengePreference:{abilityOptions.SharedChallengePreference:X}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientLogOtherPlayers)]
+        public static void HandleClientLogOtherPlayers(WorldSession session, ClientLogOtherPlayers logOtherPlayers)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"DisableLogOtherPlayers:{logOtherPlayers.LogOtherPlayersDisabled}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientLogOptions)]
+        public static void HandleClientLogOptions(WorldSession session, ClientLogOptions logOptions)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"LogOptionFlags:{logOptions.LogOptionFlags:X}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientRewardRotation)]
+        public static void HandleClientRewardRotation(WorldSession session, ClientRewardRotation rewardRotation)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"RewardContentType:{rewardRotation.ContentTypeEnum}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientWindowOpenStatistics)]
+        public static void HandleClientWindowOpenStatistics(WorldSession session, ClientWindowOpenStatistics windowStatistics)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"CharacterId:{windowStatistics.CharacterId}, TimeSpentOpen:{windowStatistics.TimeSpentOpen}, Windowname:{windowStatistics.WindowName}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientGfxStatistics)]
+        public static void HandleClientGfxStatistics(WorldSession session, ClientGfxStatistics gfxStatistics)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"GfxStat1:{gfxStatistics.GfxStat1}, GfxStat2:{gfxStatistics.GfxStat2}, GfxStat2:{gfxStatistics.GfxStat3}, GfxStat4:{gfxStatistics.GfxStat4}");
+            log.Warn($"GfxStat5:{gfxStatistics.GfxStat5}, GfxStat6:{gfxStatistics.GfxStat6}, GfxStat7:{gfxStatistics.GfxStat7}, GfxStat8:{gfxStatistics.GfxStat8}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientConnectionStatistics)]
+        public static void HandleClientConnectionStatistics(WorldSession session, ClientConnectionStatistics connectionStatistics)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"TimePerMessage0x1:{connectionStatistics.NetworkStat1}, Received:{connectionStatistics.NetworkStat2}, " +
+                $"Sent:{connectionStatistics.NetworkStat3}, UnitTableSize:{(connectionStatistics.NetworkStat4 - 1)/2}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientFramerateStatistics)]
+        public static void HandleClientModelStatistics(WorldSession session, ClientFramerateStatistics statistics)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"AverageTimePerFrame:{statistics.AverageTimePerFrame>>1}, HighestTimeFrame:{statistics.HighestTimeFrame>>1}, " +
+                $"HighestTimeMS:{statistics.HighestFrameTimeMilliseconds}, msPerFrame:{statistics.MillisecondsPerFrame>>1}");
+            log.Warn($"X@SlowestFrame:{statistics.Float1}, Y@SlowestFrame:{statistics.Float2}, Z@SlowestFrame:{statistics.Float3}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientPlayerMovementSpeedUpdate)]
+        public static void HandleClientPlayerMovementSpeedUpdate(WorldSession session, ClientPlayerMovementSpeedUpdate update)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"Speed:{update.Speed}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientSprint)]
+        public static void HandleClientSprint(WorldSession session, ClientSprint update)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"Sprinting:{update.Sprinting}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientDash)]
+        public static void HandleClientDash(WorldSession session, ClientDash message)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"DashDirection:{message.DashDirection}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientMarketplaceRequestOwnedCommodityOrders)]
+        public static void HandleClientMarketplaceRequestOwnedCommodityOrders(WorldSession session, ClientMarketplaceRequestOwnedCommodityOrders request)
+        {
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientMarketplaceRequestOwnedItemAuctions)]
+        public static void HandleClientMarketplaceRequestOwnedItemAuctions(WorldSession session, ClientMarketplaceRequestOwnedItemAuctions request)
+        {
+        }
+
+        [MessageHandler(GameMessageOpcode.Client0635)]
+        public static void HandleClient0635(WorldSession session, Client0635 message)
+        {
+            ILogger log = LogManager.GetCurrentClassLogger();
+
+            log.Warn($"ServerControlled Id:{message.Id}");
+        }
+
+        [MessageHandler(GameMessageOpcode.ClientCancelTrade)]
+        public static void HandleClientCancelTrade(WorldSession session, ClientCancelTrade message)
         {
         }
     }

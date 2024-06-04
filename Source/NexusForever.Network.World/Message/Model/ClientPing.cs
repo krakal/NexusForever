@@ -2,8 +2,8 @@
 
 namespace NexusForever.Network.World.Message.Model
 {
-    [Message(GameMessageOpcode.ClientPing)]
-    public class ClientPing : IReadable 
+    [Message(GameMessageOpcode.ClientOnRealmOrCharacterSelectScreen)]
+    public class ClientOnRealmOrCharacterSelectScreen : IReadable 
     {
         public void Read(GamePacketReader reader)
         {
