@@ -288,7 +288,7 @@ namespace NexusForever.Network.Message
         ClientMatchingQueueRandom       = 0x05F8,
         ClientMatchingQueueRandomParty  = 0x05F9,
         ClientMatchingMatchTeleportInstance = 0x0606,
-        Server0635                      = 0x0635,
+        ClientAcknowledgeServerMovementControl = 0x635,
         ServerMovementControl           = 0x0636, // handler sends 0x0635 and 0x063A
         ClientEntityCommand             = 0x0637, // bidirectional? packet has both read and write handlers 
         ServerEntityCommand             = 0x0638, // bidirectional? packet has both read and write handlers
