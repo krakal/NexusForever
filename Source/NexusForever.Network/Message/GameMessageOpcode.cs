@@ -222,7 +222,6 @@ namespace NexusForever.Network.Message
         ClientGroupRequestJoinResponse  = 0x0453,
         ServerGroupRequestJoinResult    = 0x0456,
         ServerGroupMarkUnit             = 0x045B,
-        ServerGroupJoin                 = 0x0427,
         ClientQuestShareResult          = 0x045E,
         ClientQuestShare                = 0x045F,
         ServerGroupMaxSizeChange        = 0x0462,

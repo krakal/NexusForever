@@ -7,7 +7,7 @@ using NexusForever.Network;
 using NexusForever.Network.Message;
 using NexusForever.Network.World.Message.Model;
 
-namespace NexusForever.WorldServer.Network.Message.Handler
+namespace NexusForever.WorldServer.Network.Message.Handler.Group
 {
     public static class GroupHandler
     {

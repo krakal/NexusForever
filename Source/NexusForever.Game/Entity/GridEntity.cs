@@ -135,7 +135,6 @@ namespace NexusForever.Game.Entity
                 Entry = Map.Entry
             };
             Map         = null;
-            Zone        = null;
         }
 
         /// <summary>

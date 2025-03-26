@@ -210,29 +210,6 @@ namespace NexusForever.Game.Entity
         public IGroupMember GroupMembership2 { get; private set; }
         public IGroupInvite GroupInvite { get; set; }
 
-        public IInventory Inventory { get; }
-        public ICurrencyManager CurrencyManager { get; }
-        public IPathManager PathManager { get; }
-        public ITitleManager TitleManager { get; }
-        public ISpellManager SpellManager { get; }
-        public ICostumeManager CostumeManager { get; }
-        public IPetCustomisationManager PetCustomisationManager { get; }
-        public ICharacterKeybindingManager KeybindingManager { get; }
-        public IDatacubeManager DatacubeManager { get; }
-        public IMailManager MailManager { get; }
-        public IZoneMapManager ZoneMapManager { get; }
-        public IQuestManager QuestManager { get; }
-        public ICharacterAchievementManager AchievementManager { get; }
-        public ISupplySatchelManager SupplySatchelManager { get; }
-        public IXpManager XpManager { get; }
-        public IReputationManager ReputationManager { get; }
-        public IGuildManager GuildManager { get; }
-        public IChatManager ChatManager { get; }
-        public IResidenceManager ResidenceManager { get; }
-        public ICinematicManager CinematicManager { get; }
-        public ICharacterEntitlementManager EntitlementManager { get; }
-        public ILogoutManager LogoutManager { get; }
-        public IAppearanceManager AppearanceManager { get; }
         public IInventory Inventory { get; private set; }
         public ICurrencyManager CurrencyManager { get; }
         public IPathManager PathManager { get; private set; }

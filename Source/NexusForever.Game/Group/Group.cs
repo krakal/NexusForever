@@ -4,6 +4,7 @@ using NexusForever.Game.Entity;
 using NexusForever.Game.Static.Group;
 using NexusForever.Network;
 using NexusForever.Network.Message;
+using NexusForever.Network.Session;
 using NexusForever.Network.World.Entity;
 using NexusForever.Network.World.Message.Model;
 using NexusForever.Network.World.Message.Model.Shared;
