@@ -195,7 +195,6 @@ namespace NexusForever.Game.Entity
         private bool emitVisual;
         private readonly Dictionary<ItemSlot, IItemVisual> itemVisuals = new();
 
-
         #region Dependency Injection
 
         public WorldEntity(
@@ -785,6 +784,44 @@ namespace NexusForever.Game.Entity
 
                 player.Session.EnqueueMessageEncrypted(message);
             }
+        }
+
+        /// <summary>
+        /// Set primary faction to supplied <see cref="Faction"/>.
+        /// </summary>
+        public void SetFaction(Faction factionId)
+        {
+            Faction1 = factionId;
+
+            EnqueueToVisible(new ServerEntityFaction
+            {
+                UnitId  = Guid,
+                Faction = factionId
+            });
+        }
+
+        /// <summary>
+        /// Set temporary faction to supplied <see cref="Faction"/>.
+        /// </summary>
+        public void SetTemporaryFaction(Faction factionId)
+        {
+            if (Faction1 != Faction2)
+                throw new InvalidOperationException();
+
+            Faction2 = Faction1;
+            SetFaction(factionId);
+        }
+
+        /// <summary>
+        /// Remove temporary faction and revert to primary faction.
+        /// </summary>
+        public void RemoveTemporaryFaction()
+        {
+            if (Faction1 == Faction2)
+                throw new InvalidOperationException();
+
+            SetFaction(Faction2);
+            Faction2 = Faction1;
         }
 
         /// <summary>

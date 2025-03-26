@@ -11,11 +11,13 @@ namespace NexusForever.Database.World
     {
         public DbSet<DisableModel> Disable { get; set; }
         public DbSet<EntityModel> Entity { get; set; }
+        public DbSet<EntityEventModel> EventEntity { get; set; }
         public DbSet<EntitySplineModel> EntitySpline { get; set; }
         public DbSet<EntityStatModel> EntityStat { get; set; }
         public DbSet<EntityVendorModel> EntityVendor { get; set; }
         public DbSet<EntityVendorCategoryModel> EntityVendorCategory { get; set; }
         public DbSet<EntityVendorItemModel> EntityVendorItem { get; set; }
+        public DbSet<MapEntranceModel> MapEntrance { get; set; }
         public DbSet<StoreCategoryModel> StoreCategory { get; set; }
         public DbSet<StoreOfferGroupModel> StoreOfferGroup { get; set; }
         public DbSet<StoreOfferGroupCategoryModel> StoreOfferGroupCategory { get; set; }
@@ -61,6 +63,36 @@ namespace NexusForever.Database.World
                     .HasColumnName("note")
                     .HasColumnType("varchar(500)")
                     .HasDefaultValue("");
+            });
+
+            modelBuilder.Entity<EntityEventModel>(entity =>
+            {
+                entity.ToTable("entity_event");
+
+                entity.HasKey(e => new { e.Id, e.EventId, e.Phase })
+                    .HasName("PRIMARY");
+
+                entity.HasIndex(e => e.EventId);
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasColumnType("int(10) unsigned")
+                    .HasDefaultValue(0);
+
+                entity.Property(e => e.Phase)
+                    .HasColumnName("phase")
+                    .HasColumnType("int(10) unsigned")
+                    .HasDefaultValue(0);
+
+                entity.Property(e => e.EventId)
+                    .HasColumnName("eventId")
+                    .HasColumnType("int(10) unsigned")
+                    .HasDefaultValue(0);
+
+                entity.HasOne(d => d.Entity)
+                    .WithOne(p => p.EntityEvent)
+                    .HasForeignKey<EntityEventModel>(d => d.Id)
+                    .HasConstraintName("FK__entity_event_id__entity_id");
             });
 
             modelBuilder.Entity<EntityModel>(entity =>
@@ -349,6 +381,26 @@ namespace NexusForever.Database.World
                     .WithMany(p => p.EntityVendorItem)
                     .HasForeignKey(d => d.Id)
                     .HasConstraintName("FK__entity_vendor_item_id__entity_id");
+            });
+
+            modelBuilder.Entity<MapEntranceModel>(entity =>
+            {
+                entity.ToTable("map_entrance");
+
+                entity.HasKey(e => new { e.MapId, e.Team })
+                    .HasName("PRIMARY");
+
+                entity.Property(e => e.MapId)
+                    .HasColumnName("mapId")
+                    .HasColumnType("int(10) unsigned");
+
+                entity.Property(e => e.Team)
+                    .HasColumnName("team")
+                    .HasColumnType("tinyint(3) unsigned");
+
+                entity.Property(e => e.WorldLocationId)
+                    .HasColumnName("worldLocationId")
+                    .HasColumnType("int(10) unsigned");
             });
 
             modelBuilder.Entity<StoreCategoryModel>(entity =>

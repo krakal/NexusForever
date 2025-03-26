@@ -9,9 +9,14 @@ using NexusForever.Game.Abstract.Achievement;
 using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Abstract.Group;
 using NexusForever.Game.Abstract.Entity.Movement;
+using NexusForever.Game.Abstract.Event;
 using NexusForever.Game.Abstract.Guild;
 using NexusForever.Game.Abstract.Housing;
 using NexusForever.Game.Abstract.Map;
+using NexusForever.Game.Abstract.Map.Instance;
+using NexusForever.Game.Abstract.Map.Lock;
+using NexusForever.Game.Abstract.Matching.Match;
+using NexusForever.Game.Abstract.Matching.Queue;
 using NexusForever.Game.Abstract.Reputation;
 using NexusForever.Game.Abstract.Social;
 using NexusForever.Game.Achievement;
@@ -34,7 +39,7 @@ using NexusForever.Game.Static.Social;
 using NexusForever.Game.Static.Spell;
 using NexusForever.GameTable;
 using NexusForever.GameTable.Model;
-using NexusForever.Network;
+using NexusForever.Network.Session;
 using NexusForever.Network.World.Entity;
 using NexusForever.Network.World.Entity.Model;
 using NexusForever.Network.World.Message.Model;
@@ -229,7 +234,7 @@ namespace NexusForever.Game.Entity
         public ILogoutManager LogoutManager { get; }
         public IAppearanceManager AppearanceManager { get; }
         public IInventory Inventory { get; private set; }
-        public ICurrencyManager CurrencyManager { get; private set; }
+        public ICurrencyManager CurrencyManager { get; }
         public IPathManager PathManager { get; private set; }
         public ITitleManager TitleManager { get; private set; }
         public ISpellManager SpellManager { get; private set; }
@@ -263,13 +268,23 @@ namespace NexusForever.Game.Entity
         #region Dependency Injection
 
         private readonly IEntityFactory entityFactory;
+        private readonly IMatchingManager matchingManager;
+        private readonly IMatchManager matchManager;
 
         public Player(
             IMovementManager movementManager,
-            IEntityFactory entityFactory)
+            IEntityFactory entityFactory,
+            IMatchingManager matchingManager,
+            IMatchManager matchManager,
+            ICurrencyManager currencyManager)
             : base(movementManager)
         {
-            this.entityFactory = entityFactory;
+            this.entityFactory   = entityFactory;
+            this.matchingManager = matchingManager;
+            this.matchManager    = matchManager;
+
+            // managers
+            CurrencyManager = currencyManager;
         }
 
         #endregion
@@ -321,7 +336,7 @@ namespace NexusForever.Game.Entity
 
             CostumeManager          = new CostumeManager(this, model);
             Inventory               = new Inventory(this, model);
-            CurrencyManager         = new CurrencyManager(this, model);
+            CurrencyManager.Initialise(this, model);
             PathManager             = new PathManager(this, model);
             TitleManager            = new TitleManager(this, model);
             SpellManager            = new SpellManager(this, model);
@@ -831,7 +846,7 @@ namespace NexusForever.Game.Entity
 
             if (ControlGuid != null)
             {
-                entity.ControllerGuid = ControlGuid;
+                entity.ControllerGuid = Guid;
 
                 Session.EnqueueMessageEncrypted(new ServerMovementControl
                 {
@@ -902,6 +917,9 @@ namespace NexusForever.Game.Entity
             GlobalChatManager.Instance.JoinDefaultChatChannels(this);
 
             ShutdownManager.Instance.OnLogin(this);
+
+            matchingManager.OnLogin(this);
+            matchManager.OnLogin(this);
         }
 
         private void OnLogout()
@@ -909,6 +927,9 @@ namespace NexusForever.Game.Entity
             GuildManager.OnLogout();
             ChatManager.OnLogout();
             GlobalChatManager.Instance.LeaveDefaultChatChannels(this);
+
+            matchingManager.OnLogout(this);
+            matchManager.OnLogout(this);
 
             scriptCollection.Invoke<IPlayerScript>(s => s.OnLogout());
         }
@@ -922,26 +943,26 @@ namespace NexusForever.Game.Entity
         /// <summary>
         /// Teleport <see cref="IPlayer"/> to supplied location.
         /// </summary>
-        public void TeleportTo(ushort worldId, float x, float y, float z, ulong? instanceId = null, TeleportReason reason = TeleportReason.Relocate)
+        public void TeleportTo(ushort worldId, float x, float y, float z, IMapLock mapLock = null, TeleportReason reason = TeleportReason.Relocate)
         {
             WorldEntry entry = GameTableManager.Instance.World.GetEntry(worldId);
             if (entry == null)
                 throw new ArgumentException($"{worldId} is not a valid world id!");
 
-            TeleportTo(entry, new Vector3(x, y, z), instanceId, reason);
+            TeleportTo(entry, new Vector3(x, y, z), mapLock, reason);
         }
 
         /// <summary>
         /// Teleport <see cref="IPlayer"/> to supplied location.
         /// </summary>
-        public void TeleportTo(WorldEntry entry, Vector3 position, ulong? instanceId = null, TeleportReason reason = TeleportReason.Relocate)
+        public void TeleportTo(WorldEntry entry, Vector3 position, IMapLock mapLock = null, TeleportReason reason = TeleportReason.Relocate)
         {
             TeleportTo(new MapPosition
             {
                 Info = new MapInfo
                 {
-                    Entry      = entry,
-                    InstanceId = instanceId
+                    Entry   = entry,
+                    MapLock = mapLock
                 },
                 Position = position
             }, reason);
@@ -979,8 +1000,10 @@ namespace NexusForever.Game.Entity
                 VanityPetId = vanityPetId
             };
 
+            SetControl(null);
+
             MapManager.Instance.AddToMap(this, mapPosition);
-            log.Trace($"Teleporting {Name}({CharacterId}) to map: {mapPosition.Info.Entry.Id}, instance: {mapPosition.Info.InstanceId ?? 0ul}.");
+            log.Trace($"Teleporting {Name}({CharacterId}) to map: {mapPosition.Info.Entry.Id}, instance: {mapPosition.Info.MapLock?.InstanceId ?? null}.");
         }
 
         /// <summary>
@@ -992,6 +1015,8 @@ namespace NexusForever.Game.Entity
             {
                 SendGenericError(error);
                 pendingTeleport = null;
+
+                SetControl(this);
 
                 log.Trace($"Error {error} occured during teleport for {Name}({CharacterId})!");
             }
@@ -1447,8 +1472,8 @@ namespace NexusForever.Game.Entity
             {
                 Info = new MapInfo
                 {
-                    Entry      = Map.Entry,
-                    InstanceId = Map is IMapInstance instance ? instance.InstanceId : 0u
+                    Entry   = Map.Entry,
+                    MapLock = Map is IMapInstance instance ? instance.MapLock : null
                 },
                 Position = Position
             });
