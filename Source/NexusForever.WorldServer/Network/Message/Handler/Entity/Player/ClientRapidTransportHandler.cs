@@ -7,7 +7,7 @@ using NexusForever.Network.World.Message.Model;
 
 namespace NexusForever.WorldServer.Network.Message.Handler.Entity.Player
 {
-    public class ClientRapidTransportHandler : IMessageHandler<IWorldSession, ClientRapidTransport>
+    public class ClientRapidTransportHandler : IMessageHandler<IWorldSession, ClientCastRapidTransport>
     {
         #region Dependency Injection
 
@@ -21,13 +21,13 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Entity.Player
 
         #endregion
 
-        public void HandleMessage(IWorldSession session, ClientRapidTransport rapidTransport)
+        public void HandleMessage(IWorldSession session, ClientCastRapidTransport rapidTransport)
         {
             // TODO: rawaho note, below checks should really happen in the spell effect handler
             //TODO: check for cooldown
             //TODO: handle payment
 
-            TaxiNodeEntry taxiNode = gameTableManager.TaxiNode.GetEntry(rapidTransport.TaxiNode);
+            TaxiNodeEntry taxiNode = gameTableManager.TaxiNode.GetEntry(rapidTransport.TaxiNodeId);
             if (taxiNode == null)
                 throw new InvalidPacketValueException();
 
@@ -41,7 +41,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Entity.Player
             GameFormulaEntry entry = gameTableManager.GameFormula.GetEntry(1307);
             session.Player.CastSpell(entry.Dataint0, new SpellParameters
             {
-                TaxiNode = rapidTransport.TaxiNode
+                TaxiNode = rapidTransport.TaxiNodeId
             });
         }
     }

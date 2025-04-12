@@ -39,6 +39,7 @@ namespace NexusForever.Network.Message
         ServerInstanceSettings          = 0x00F1, // handler sends 0x00D5 and ClientPlayerMovementSpeedUpdate
         ClientEnteredWorld              = 0x00F2,
         ServerCharacterFlagsUpdated     = 0x00FE,
+        ClientPurchaseFlightPathTakeShuttle = 0x00FF,
         ServerResurrectionState         = 0x0100,
         Server0104                      = 0x0104, // Galactic Archive
         ServerGenericError              = 0x0106,
@@ -65,7 +66,7 @@ namespace NexusForever.Network.Message
         ServerPublicEventObjectiveNotificationMode = 0x0133,
         ServerPublicEventObjectiveStatusUpdate = 0x0134,
         ServerPublicEventObjectiveBusy  = 0x0135,
-        ClientRapidTransport            = 0x0141,
+        ClientCastRapidTransport        = 0x0141,
         ClientCharacterAppearanceChange = 0x0144,
         ServerCharacterAppearanceResult = 0x0145,
         ServerItemDelete                = 0x0148,
@@ -92,6 +93,9 @@ namespace NexusForever.Network.Message
         ClientItemMove                  = 0x0182,
         ClientItemMoveFromSupplySatchel = 0x0184,
         ClientEntitySelect              = 0x0185,
+        ServerFlightPathAllowedNodeAdd  = 0x0186,
+        ServerFlightPathAllowedNodesClear = 0x0187,
+        ServerFlightPathAllowedNodeAddList = 0x0188,
         ServerFlightPathUpdate          = 0x0188,
         ServerTitleSet                  = 0x0189,
         ServerTitleUpdate               = 0x018A,
@@ -379,6 +383,7 @@ namespace NexusForever.Network.Message
         ClientStorefrontPurchaseCharacter = 0x082A,
         ClientStorefrontRequestCatalog  = 0x082D,
         ClientSummonVanityPet           = 0x082F,
+        ServerTriggerSoundTaxiLanding   = 0x083A,
         ServerTimeOfDay                 = 0x0845,
         Server0854                      = 0x0854, // crafting schematic
         Server0856                      = 0x0856, // tradeskills
