@@ -8,6 +8,7 @@ using NexusForever.GameTable.Model;
 using NexusForever.Network.World.Entity;
 using NexusForever.Network.World.Entity.Model;
 using NexusForever.Network.World.Message.Model;
+using static NexusForever.Network.World.Entity.Model.TaxiEntityModel;
 using NetworkVehiclePassenger = NexusForever.Network.World.Message.Model.Shared.VehiclePassenger;
 
 namespace NexusForever.Game.Entity
@@ -166,20 +167,24 @@ namespace NexusForever.Game.Entity
 
             // sets vehicle guid, seat type and seat position to local self entity at client
             // might not be correct as ServerVehiclePassengerAdd does this too, used for changing seats instead?
-            player.Session.EnqueueMessageEncrypted(new Server089B
+            player.Session.EnqueueMessageEncrypted(new ServerUnitMount
             {
-                Self         = passenger.Guid,
-                Vehicle      = Guid,
+                UnitId       = passenger.Guid,
+                VehicleUnitId = Guid,
                 SeatType     = passenger.SeatType,
                 SeatPosition = passenger.SeatPosition
             });
 
             EnqueueToVisible(new ServerVehiclePassengerAdd
             {
-                Self         = Guid,
-                SeatType     = passenger.SeatType,
-                SeatPosition = passenger.SeatPosition,
-                UnitId       = passenger.Guid
+                VehicleUnitId          = Guid,
+                Passenger = new NexusForever.Network.World.Message.Model.Shared.VehiclePassenger
+                {
+                    SeatType = passenger.SeatType,
+                    SeatPosition = passenger.SeatPosition,
+                    UnitId = passenger.Guid
+                }
+
             }, true);
 
             if (passenger.SeatType == VehicleSeatType.Pilot)
@@ -234,8 +239,8 @@ namespace NexusForever.Game.Entity
 
             EnqueueToVisible(new ServerVehiclePassengerRemove
             {
-                Self      = Guid,
-                Passenger = passenger.Guid
+                VehicleUnitId       = Guid,
+                PassengerUnitId     = passenger.Guid
             }, true);
 
             // this probably isn't correct for all cases
