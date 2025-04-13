@@ -2,7 +2,7 @@ using NexusForever.Network.World.Message.Model.Shared;
 
 namespace NexusForever.Network.World.Entity.Model
 {
-    public partial class TaxiEntityModel : IEntityModel
+    public class TaxiEntityModel : IEntityModel
     {
         public uint CreatureId { get; set; }
         public ushort UnitVehicleId { get; set; }
