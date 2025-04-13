@@ -14,7 +14,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         /// <summary>
         /// Send <see cref="ServerGroupInviteResult"/> to the current <see cref="WorldSession"/>
         /// </summary>
-        public static void SendGroupResult(WorldSession session, GroupResult result, ulong groupId = 0, string targetPlayerName = "")
+        public static void SendGroupResult(IWorldSession session, GroupResult result, ulong groupId = 0, string targetPlayerName = "")
         {
             session.EnqueueMessageEncrypted(new ServerGroupInviteResult
             {
@@ -30,7 +30,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         /// <param name="session">The Players current <see cref="WorldSession"/></param>
         /// <param name="recievedGroupId">The identifier of the group the requiest is for.</param>
         /// <param name="assertPrimaryGroup">if true; asserts that the supplied Group Id is for the primary group when the player is a member of two groups.</param>
-        public static void AssertGroupId(WorldSession session, ulong recievedGroupId, bool assertPrimaryGroup = true)
+        public static void AssertGroupId(IWorldSession session, ulong recievedGroupId, bool assertPrimaryGroup = true)
         {
             // If the player is not part of a Group1 they cannot be part of a Group2 so no need to check.
             if (session.Player.GroupMembership1 == null || session.Player.GroupMembership1.Group == null)
@@ -47,7 +47,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         /// <summary>
         /// Asserts that the <see cref="Player"/> session group member can perform the requested action.
         /// </summary>
-        public static void AssertPermission(WorldSession session, ulong groupID, GroupMemberInfoFlags action)
+        public static void AssertPermission(IWorldSession session, ulong groupID, GroupMemberInfoFlags action)
         {
             if (session.Player.GroupMembership1.Group.Id == groupID)
             {
@@ -64,7 +64,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         /// <summary>
         /// Asserts that the <see cref="Player"/> session group member can perform the requested action.
         /// </summary>
-        public static void AssertGroupLeader(WorldSession session, ulong groupID)
+        public static void AssertGroupLeader(IWorldSession session, ulong groupID)
         {
             if (session.Player.GroupMembership1.Group.Id == groupID)
             {
@@ -78,8 +78,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupInvite)]
-        public static void HandleGroupInvite(WorldSession session, ClientGroupInvite groupInvite)
+        public static void HandleGroupInvite(IWorldSession session, ClientGroupInvite groupInvite)
         {
             IPlayer targetedPlayer = PlayerManager.Instance.GetPlayer(groupInvite.Name);
             if (targetedPlayer == null)
@@ -141,7 +140,6 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 group.ReferMember(membership, targetedPlayer);
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupRequestJoin)]
         public static void HandleJoinGroupRequest(WorldSession session, ClientGroupRequestJoin joinRequest)
         {
             if (session.Player.GroupMembership1 != null) // player who did /join is already in a group. This has no effect.
@@ -167,8 +165,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupRequestJoinResponse)]
-        public static void HandleClientGroupRequestJoinResponse(WorldSession session, ClientGroupRequestJoinResponse clientGroupRequestJoinResponse)
+        public static void HandleClientGroupRequestJoinResponse(IWorldSession session, ClientGroupRequestJoinResponse clientGroupRequestJoinResponse)
         {
             // This comes from the leader / assist of the group, assert they are part of the correct group.
             AssertGroupId(session, clientGroupRequestJoinResponse.GroupId);
@@ -186,8 +183,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 group.DeclineInvite(clientGroupRequestJoinResponse.InviteeName);
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupInviteResponse)]
-        public static void HandleGroupInviteResponse(WorldSession session, ClientGroupInviteResponse response)
+        public static void HandleGroupInviteResponse(IWorldSession session, ClientGroupInviteResponse response)
         {
             IGroup joinedGroup = GroupManager.Instance.GetGroupById(response.GroupId);
             if (joinedGroup == null)
@@ -213,7 +209,6 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             joinedGroup.AcceptInvite(session.Player.GroupInvite);
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupKick)]
         public static void HandleGroupKick(WorldSession session, ClientGroupKick kick)
         {
             AssertGroupId(session, kick.GroupId);
@@ -235,7 +230,6 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 group.KickMember(kick.TargetedPlayer);
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupLeave)]
         public static void HandleGroupLeave(WorldSession session, ClientGroupLeave leave)
         {
             AssertGroupId(session, leave.GroupId);
@@ -260,8 +254,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             group.RemoveMember(session.Player.GroupMembership1);
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupMarkUnit)]
-        public static void HandleGroupMarkUnit(WorldSession session, ClientGroupMark clientMark)
+        public static void HandleGroupMarkUnit(IWorldSession session, ClientGroupMark clientMark)
         {
             // Players can only mark for their Active group.
             ulong groupId = session.Player.GroupMembership1.Group.Id;
@@ -276,8 +269,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             group.MarkUnit(clientMark.UnitId, clientMark.Marker);
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupFlagsChanged)]
-        public static void HandleGroupFlagsChanged(WorldSession session, ClientGroupFlagsChanged clientGroupFlagsChanged)
+        public static void HandleGroupFlagsChanged(IWorldSession session, ClientGroupFlagsChanged clientGroupFlagsChanged)
         {
             AssertGroupId(session, clientGroupFlagsChanged.GroupId);
             AssertGroupLeader(session, clientGroupFlagsChanged.GroupId);
@@ -292,8 +284,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             group.SetGroupFlags(clientGroupFlagsChanged.NewFlags);
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupSetRole)]
-        public static void HandleGroupSetRole(WorldSession session, ClientGroupSetRole clientGroupSetRole)
+        public static void HandleGroupSetRole(IWorldSession session, ClientGroupSetRole clientGroupSetRole)
         {
             AssertGroupId(session, clientGroupSetRole.GroupId);
 
@@ -307,8 +298,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             group.UpdateMemberRole(session.Player.GroupMembership1, clientGroupSetRole.TargetedPlayer, clientGroupSetRole.ChangedFlag, clientGroupSetRole.CurrentFlags.HasFlag(clientGroupSetRole.ChangedFlag));
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupSendReadyCheck)]
-        public static void HandleSendReadyCheck(WorldSession session, ClientGroupSendReadyCheck sendReadyCheck)
+        public static void HandleSendReadyCheck(IWorldSession session, ClientGroupSendReadyCheck sendReadyCheck)
         {
             AssertGroupId(session, sendReadyCheck.GroupId);
 
@@ -328,8 +318,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             group.PerformReadyCheck(session.Player, sendReadyCheck.Message);
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupLootRulesChange)]
-        public static void HandleGroupLootRulesChange(WorldSession session, ClientGroupLootRulesChange clientGroupLootRulesChange)
+        public static void HandleGroupLootRulesChange(IWorldSession session, ClientGroupLootRulesChange clientGroupLootRulesChange)
         {
             AssertGroupId(session, clientGroupLootRulesChange.GroupId);
             AssertGroupLeader(session, clientGroupLootRulesChange.GroupId);
@@ -338,8 +327,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             group.UpdateLootRules(clientGroupLootRulesChange.LootRulesUnderThreshold, clientGroupLootRulesChange.LootRulesThresholdAndOver, clientGroupLootRulesChange.Threshold, clientGroupLootRulesChange.HarvestingRule);
         }
 
-        [MessageHandler(GameMessageOpcode.ClientGroupPromote)]
-        public static void ClientGroupPromote(WorldSession session, ClientGroupPromote clientGroupPromote)
+        public static void ClientGroupPromote(IWorldSession session, ClientGroupPromote clientGroupPromote)
         {
             AssertGroupId(session, clientGroupPromote.GroupId);
 
