@@ -96,7 +96,6 @@ namespace NexusForever.Network.Message
         ServerFlightPathAllowedNodeAdd  = 0x0186,
         ServerFlightPathAllowedNodesClear = 0x0187,
         ServerFlightPathAllowedNodeAddList = 0x0188,
-        ServerFlightPathUpdate          = 0x0188,
         ServerTitleSet                  = 0x0189,
         ServerTitleUpdate               = 0x018A,
         ServerTitles                    = 0x018B,
