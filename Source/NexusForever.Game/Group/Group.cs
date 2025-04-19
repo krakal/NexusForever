@@ -279,7 +279,7 @@ namespace NexusForever.Game.Group
 
                     break;
                 case GroupInviteType.Request:
-                    targetPlayer.Session.EnqueueMessageEncrypted(new ServerGroupRequestJoinResult
+                    targetPlayer.Session.EnqueueMessageEncrypted(new ServerGroupRequestResult
                     {
                         GroupId = Id,
                         IsJoin = true,
@@ -326,7 +326,7 @@ namespace NexusForever.Game.Group
                     break;
 
                 case GroupInviteType.Request:
-                    targetPlayer.Session.EnqueueMessageEncrypted(new ServerGroupRequestJoinResult
+                    targetPlayer.Session.EnqueueMessageEncrypted(new ServerGroupRequestResult
                     {
                         GroupId = Id,
                         IsJoin = false,

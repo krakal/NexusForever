@@ -165,22 +165,22 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
         }
 
-        public static void HandleClientGroupRequestJoinResponse(IWorldSession session, ClientGroupRequestJoinResponse clientGroupRequestJoinResponse)
+        public static void HandleClientGroupRequestJoinResponse(IWorldSession session, ClientGroupJoinResponse joinResponse)
         {
             // This comes from the leader / assist of the group, assert they are part of the correct group.
-            AssertGroupId(session, clientGroupRequestJoinResponse.GroupId);
+            AssertGroupId(session, joinResponse.GroupId);
 
-            IGroup group = GroupManager.Instance.GetGroupById(clientGroupRequestJoinResponse.GroupId);
+            IGroup group = GroupManager.Instance.GetGroupById(joinResponse.GroupId);
             if (group == null)
             {
                 SendGroupResult(session, GroupResult.GroupNotFound);
                 return;
             }
 
-            if (clientGroupRequestJoinResponse.AcceptedRequest)
-                group.AcceptInvite(clientGroupRequestJoinResponse.InviteeName);
+            if (joinResponse.AcceptedRequest)
+                group.AcceptInvite(joinResponse.InviteeName);
             else
-                group.DeclineInvite(clientGroupRequestJoinResponse.InviteeName);
+                group.DeclineInvite(joinResponse.InviteeName);
         }
 
         public static void HandleGroupInviteResponse(IWorldSession session, ClientGroupInviteResponse response)
@@ -254,7 +254,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             group.RemoveMember(session.Player.GroupMembership1);
         }
 
-        public static void HandleGroupMarkUnit(IWorldSession session, ClientGroupMark clientMark)
+        public static void HandleGroupMarkUnit(IWorldSession session, ClientGroupSetTargetMark clientMark)
         {
             // Players can only mark for their Active group.
             ulong groupId = session.Player.GroupMembership1.Group.Id;
