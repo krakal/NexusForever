@@ -156,7 +156,7 @@ namespace NexusForever.Game.Entity
             resurrectionType = ResurrectionType.None;
             hasCasterResurrectionRequest = false;
 
-            owner.ModifyHealth(owner.MaxHealth / 2, DamageType.Heal, null);
+            owner.ModifyHealth(owner.HealthMax / 2, DamageType.Heal, null);
             owner.Shield = 0;
 
             log.Trace($"Player {owner.Guid} has accepted resurrection.");

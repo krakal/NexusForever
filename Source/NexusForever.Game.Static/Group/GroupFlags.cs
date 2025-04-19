@@ -10,6 +10,7 @@ namespace NexusForever.Game.Static.Group
         JoinRequestOpen         = 1 << 4,
         JoinRequestClosed       = 1 << 5,
         ReferralsOpen           = 1 << 6,
-        ReferralsClosed         = 1 << 7
+        ReferralsClosed         = 1 << 7,
+        MixedFactionGroup       = 1 << 8,
     }
 }

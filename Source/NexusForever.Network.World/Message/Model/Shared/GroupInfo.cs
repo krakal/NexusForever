@@ -11,11 +11,11 @@ namespace NexusForever.Network.World.Message.Model.Shared
         public uint MaxGroupSize { get; set; }
 
         public LootRule LootRule { get; set; }
-        public LootRule LootRuleThreshold { get; set; }
-        public LootThreshold LootThreshold { get; set; }
+        public LootRule LootThresholdRule { get; set; }
+        public LootThreshold LootThresholdQuality { get; set; }
         public HarvestLootRule LootRuleHarvest { get; set; }
 
-        public TargetPlayerIdentity LeaderIdentity { get; set; } = new TargetPlayerIdentity();
+        public PlayerIdentity Leader { get; set; } = new PlayerIdentity();
         public ushort RealmId { get; set; }     //< Why again? Tf?
 
         public GroupMarkerInfo MarkerInfo { get; set; }
@@ -28,13 +28,13 @@ namespace NexusForever.Network.World.Message.Model.Shared
             writer.Write(MaxGroupSize);
 
             writer.Write(LootRule, 3u);
-            writer.Write(LootRuleThreshold, 3u);
-            writer.Write(LootThreshold, 4u);
+            writer.Write(LootThresholdRule, 3u);
+            writer.Write(LootThresholdQuality, 4u);
             writer.Write(LootRuleHarvest, 2u);
 
             MemberInfos.ForEach(member => member.Write(writer));
 
-            LeaderIdentity.Write(writer);
+            Leader.Write(writer);
             writer.Write(RealmId, 14);
 
             MarkerInfo.Write(writer);

@@ -31,7 +31,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Misc
 
             session.EnqueueMessageEncrypted(new ServerRandomRollResponse
             {
-                TargetPlayerIdentity = new TargetPlayerIdentity
+                TargetPlayerIdentity = new PlayerIdentity
                 {
                     RealmId     = realmContext.RealmId,
                     CharacterId = session.Player.CharacterId

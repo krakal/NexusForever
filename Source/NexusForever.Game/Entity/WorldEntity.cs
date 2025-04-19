@@ -89,7 +89,7 @@ namespace NexusForever.Game.Entity
             get => GetStatInteger(Stat.Health) ?? 0u;
             protected set
             {
-                SetStat(Stat.Health, Math.Clamp(value, 0u, MaxHealth)); // TODO: Confirm MaxHealth is actually the maximum health would be at.
+                SetStat(Stat.Health, Math.Clamp(value, 0u, HealthMax)); // TODO: Confirm MaxHealth is actually the maximum health would be at.
                 EnqueueToVisible(new ServerEntityHealthUpdate
                 {
                     UnitId = Guid,
@@ -98,7 +98,7 @@ namespace NexusForever.Game.Entity
             }
         }
 
-        public uint MaxHealth
+        public uint HealthMax
         {
             get => (uint)GetPropertyValue(Property.BaseHealth);
             set => SetBaseProperty(Property.BaseHealth, value);
@@ -107,10 +107,10 @@ namespace NexusForever.Game.Entity
         public uint Shield
         {
             get => GetStatInteger(Stat.Shield) ?? 0u;
-            set => SetStat(Stat.Shield, Math.Clamp(value, 0u, MaxShieldCapacity)); // TODO: Handle overshield
+            set => SetStat(Stat.Shield, Math.Clamp(value, 0u, ShieldCapacityMax)); // TODO: Handle overshield
         }
 
-        public uint MaxShieldCapacity
+        public uint ShieldCapacityMax
         {
             get => (uint)GetPropertyValue(Property.ShieldCapacityMax);
             set => SetBaseProperty(Property.ShieldCapacityMax, value);
@@ -123,6 +123,12 @@ namespace NexusForever.Game.Entity
         }
 
         public uint InterruptArmor
+        {
+            get => GetStatInteger(Stat.InterruptArmour) ?? 1u;
+            set => SetStat(Stat.InterruptArmour, value);
+        }
+
+        public uint InterruptArmorMax
         {
             get => GetStatInteger(Stat.InterruptArmour) ?? 1u;
             set => SetStat(Stat.InterruptArmour, value);
@@ -236,8 +242,8 @@ namespace NexusForever.Game.Entity
             CalculateDefaultProperties();
 
             // TODO: handle this better
-            Health = MaxHealth;
-            Shield = MaxShieldCapacity;
+            Health = HealthMax;
+            Shield = ShieldCapacityMax;
         }
 
         /// <summary>
@@ -624,11 +630,11 @@ namespace NexusForever.Game.Entity
             {
                 case Property.BaseHealth:
                     if (propertyValue.Value < Health)
-                        Health = MaxHealth;
+                        Health = HealthMax;
                     break;
                 case Property.ShieldCapacityMax:
                     if (propertyValue.Value < Shield)
-                        Shield = MaxShieldCapacity;
+                        Shield = ShieldCapacityMax;
                     break;
             }
         }

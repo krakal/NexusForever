@@ -197,10 +197,10 @@ namespace NexusForever.Game.Combat
                 switch (entry.ParameterType[i])
                 {
                     case SpellEffectParameterType.TargetMaxHealth:
-                        intermediateValue = target.MaxHealth;
+                        intermediateValue = target.HealthMax;
                         break;
                     case SpellEffectParameterType.CasterMaxHealth:
-                        intermediateValue = caster.MaxHealth;
+                        intermediateValue = caster.HealthMax;
                         break;
                     case SpellEffectParameterType.CasterShieldCapacity:
                         intermediateValue = caster.Shield;
@@ -209,10 +209,10 @@ namespace NexusForever.Game.Combat
                         intermediateValue = target.Shield;
                         break;
                     case SpellEffectParameterType.CasterMaxShieldCapacity:
-                        intermediateValue = caster.MaxShieldCapacity;
+                        intermediateValue = caster.ShieldCapacityMax;
                         break;
                     case SpellEffectParameterType.TargetMaxShieldCapacity:
-                        intermediateValue = target.MaxShieldCapacity;
+                        intermediateValue = target.ShieldCapacityMax;
                         break;
                     case SpellEffectParameterType.ItemBudget:
                         intermediateValue = entry.ParameterValue[i];
@@ -221,19 +221,19 @@ namespace NexusForever.Game.Combat
                         intermediateValue = target.Health;
                         break;
                     case SpellEffectParameterType.TargetMissingHealth:
-                        intermediateValue = (target.MaxHealth - target.Health);
+                        intermediateValue = (target.HealthMax - target.Health);
                         break;
                     case SpellEffectParameterType.TargetMissingShields:
-                        intermediateValue = (target.MaxShieldCapacity - target.Shield);
+                        intermediateValue = (target.ShieldCapacityMax - target.Shield);
                         break;
                     case SpellEffectParameterType.CasterCurrentHealth:
                         intermediateValue = caster.Health;
                         break;
                     case SpellEffectParameterType.CasterMissingHealth:
-                        intermediateValue = (caster.MaxHealth - caster.Health);
+                        intermediateValue = (caster.HealthMax - caster.Health);
                         break;
                     case SpellEffectParameterType.CasterMissingShields:
-                        intermediateValue = (caster.MaxShieldCapacity - caster.Shield);
+                        intermediateValue = (caster.ShieldCapacityMax - caster.Shield);
                         break;
                     case SpellEffectParameterType.PerLevel:
                         intermediateValue = caster.Level;

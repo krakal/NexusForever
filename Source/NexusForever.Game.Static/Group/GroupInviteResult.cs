@@ -1,6 +1,6 @@
 namespace NexusForever.Game.Static.Group
 {
-    public enum GroupInviteResult
+    public enum GroupInviteResponse
     {
         /// <summary>
         /// Player declined the Invite
@@ -10,11 +10,6 @@ namespace NexusForever.Game.Static.Group
         /// <summary>
         /// Player accepted the Invite
         /// </summary>
-        Accepted = 1,
-
-        /// <summary>
-        /// Player ran out of time to accept Invite
-        /// </summary>
-        OutOfTime = 2,
+        Accepted = 1
     }
 }

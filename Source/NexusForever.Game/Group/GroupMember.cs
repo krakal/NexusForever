@@ -130,7 +130,7 @@ namespace NexusForever.Game.Group
         {
             return new GroupMemberInfo
             {
-                MemberIdentity = new TargetPlayerIdentity
+                MemberIdentity = new PlayerIdentity
                 {
                     CharacterId = CharacterId,
                     RealmId = RealmContext.Instance.RealmId
@@ -162,28 +162,28 @@ namespace NexusForever.Game.Group
         /// </summary>
         public ServerGroupMemberStatUpdate BuildGroupStatUpdate()
         {
-            IPlayer targetPlayer = PlayerManager.Instance.GetPlayer(CharacterId);
-            if (targetPlayer == null)
+            IPlayer player = PlayerManager.Instance.GetPlayer(CharacterId);
+            if (player == null)
                 return null;
 
             return new ServerGroupMemberStatUpdate
             {
                 GroupId = Group.Id,
                 GroupMemberId = (ushort)Id,
-                TargetPlayer = new TargetPlayerIdentity
+                TargetPlayer = new PlayerIdentity
                 {
                     CharacterId = CharacterId,
                     RealmId = RealmContext.Instance.RealmId
                 },
-                Level = (byte)targetPlayer.Level,
-                EffectiveLevel = (byte)targetPlayer.Level,
-                Health = (ushort)targetPlayer.Health,
-                HealthMax = (ushort)targetPlayer.Health,
-                Shield = (ushort)targetPlayer.Shield,
-                ShieldMax = (ushort)targetPlayer.Shield,
-                InterruptArmor = (ushort)targetPlayer.InterruptArmor,
-                InterruptArmorMax = (ushort)targetPlayer.InterruptArmor,
-                Path = targetPlayer.Path
+                Level = (byte)player.Level,
+                EffectiveLevel = (byte)player.Level,
+                Health = (ushort)player.Health,
+                HealthMax = (ushort)player.HealthMax,
+                ShieldCapacity = (ushort)player.Shield,
+                ShieldCapacityMax = (ushort)player.ShieldCapacityMax,
+                InterruptArmor = (ushort)player.InterruptArmor,
+                InterruptArmorMax = (ushort)player.InterruptArmorMax,
+                Path = player.Path
             };
         }
     }

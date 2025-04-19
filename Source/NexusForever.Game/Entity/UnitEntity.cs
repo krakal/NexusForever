@@ -241,11 +241,11 @@ namespace NexusForever.Game.Entity
             // TODO: This should probably get moved to a Calculation Library/Manager at some point. There will be different timers on Stat refreshes, but right now the timer is hardcoded to every 0.25s.
             // Probably worth considering an Attribute-grouped Class that allows us to run differentt regeneration methods & calculations for each stat.
 
-            if (Health < MaxHealth)
-                ModifyHealth((uint)(MaxHealth / 200f), DamageType.Heal, null);
+            if (Health < HealthMax)
+                ModifyHealth((uint)(HealthMax / 200f), DamageType.Heal, null);
 
-            if (Shield < MaxShieldCapacity)
-                Shield += (uint)(MaxShieldCapacity * GetPropertyValue(Property.ShieldRegenPct) * statUpdateTimer.Duration);
+            if (Shield < ShieldCapacityMax)
+                Shield += (uint)(ShieldCapacityMax * GetPropertyValue(Property.ShieldRegenPct) * statUpdateTimer.Duration);
         }
 
         /// <summary>
@@ -399,7 +399,7 @@ namespace NexusForever.Game.Entity
             else
                 newHealth -= amount;
 
-            Health = (uint)Math.Clamp(newHealth, 0u, MaxHealth);
+            Health = (uint)Math.Clamp(newHealth, 0u, HealthMax);
 
             if (Health == 0)
                 OnDeath();

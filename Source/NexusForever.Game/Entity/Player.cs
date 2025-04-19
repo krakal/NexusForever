@@ -1390,7 +1390,7 @@ namespace NexusForever.Game.Entity
                 Realm           = RealmContext.Instance.RealmId,
                 WorldZoneId     = (ushort)Zone.Id,
                 MapId           = Map.Entry.Id,
-                SyncedToGroup   = true
+                InInstance      = true
             };
         }
         

@@ -6,8 +6,8 @@ namespace NexusForever.Network.World.Message.Model
     [Message(GameMessageOpcode.ClientGroupKick)]
     public class ClientGroupKick : IReadable
     {
-        public ulong GroupId { get; set; }
-        public TargetPlayerIdentity TargetedPlayer { get; set; } = new TargetPlayerIdentity();
+        public ulong GroupId { get; private set; }
+        public PlayerIdentity TargetedPlayer { get; private set; } = new PlayerIdentity();
 
         public void Read(GamePacketReader reader)
         {

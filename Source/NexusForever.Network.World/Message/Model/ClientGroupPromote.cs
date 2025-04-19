@@ -7,8 +7,7 @@ namespace NexusForever.Network.World.Message.Model
     public class ClientGroupPromote : IReadable
     {
         public ulong GroupId { get; set; }
-
-        public TargetPlayerIdentity TargetedPlayer { get; set; } = new TargetPlayerIdentity();
+        public PlayerIdentity TargetedPlayer { get; set; } = new PlayerIdentity();
 
         public void Read(GamePacketReader reader)
         {

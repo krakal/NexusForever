@@ -40,11 +40,12 @@ namespace NexusForever.Game.Abstract.Entity
         IMovementManager MovementManager { get; }
 
         uint Health { get; }
-        uint MaxHealth { get; set; }
+        uint HealthMax { get; set; }
         uint Shield { get; set; }
-        uint MaxShieldCapacity { get; set; }
+        uint ShieldCapacityMax { get; set; }
         uint Level { get; set; }
         uint InterruptArmor { get; set; }
+        uint InterruptArmorMax { get; set; }
         bool Sheathed { get; set; }
 
         StandState StandState { get; set; }

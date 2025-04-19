@@ -19,7 +19,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             session.EnqueueMessageEncrypted(new ServerGroupInviteResult
             {
                 GroupId = groupId,
-                Name = targetPlayerName,
+                InviteeName = targetPlayerName,
                 Result = result
             });
         }
@@ -80,38 +80,38 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
 
         public static void HandleGroupInvite(IWorldSession session, ClientGroupInvite groupInvite)
         {
-            IPlayer targetedPlayer = PlayerManager.Instance.GetPlayer(groupInvite.Name);
+            IPlayer targetedPlayer = PlayerManager.Instance.GetPlayer(groupInvite.InviteeName);
             if (targetedPlayer == null)
             {
-                SendGroupResult(session, GroupResult.PlayerNotFound, targetPlayerName: groupInvite.Name);
+                SendGroupResult(session, GroupResult.PlayerNotFound, targetPlayerName: groupInvite.InviteeName);
                 return;
             }
 
             // Check if targeted player is already grouped in a Group1 they cannot be re-invited, only instance finder can create an instance group.
             if (targetedPlayer.GroupMembership1 != null)
             {
-                SendGroupResult(session, GroupResult.Grouped, targetPlayerName: groupInvite.Name);
+                SendGroupResult(session, GroupResult.Grouped, targetPlayerName: groupInvite.InviteeName);
                 return;
             }
 
             // Check if inviter faction is same as invited faction.
             if (targetedPlayer.Faction1 != session.Player.Faction1)
             {
-                SendGroupResult(session, GroupResult.WrongFaction, targetPlayerName: groupInvite.Name);
+                SendGroupResult(session, GroupResult.WrongFaction, targetPlayerName: groupInvite.InviteeName);
                 return;
             }
 
             // Player is already being invited by another group/player
             if (targetedPlayer.GroupInvite != null)
             {
-                SendGroupResult(session, GroupResult.Pending, targetPlayerName: groupInvite.Name);
+                SendGroupResult(session, GroupResult.Pending, targetPlayerName: groupInvite.InviteeName);
                 return;
             }
 
             // Check if the inviter is not inviting himself (pleb)
             if (targetedPlayer.Session == session)
             {
-                SendGroupResult(session, GroupResult.NotInvitingSelf, targetPlayerName: groupInvite.Name);
+                SendGroupResult(session, GroupResult.NotInvitingSelf, targetPlayerName: groupInvite.InviteeName);
                 return;
             }
 
@@ -129,7 +129,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
 
             if (group.IsFull)
             {
-                SendGroupResult(session, GroupResult.Full, group.Id, groupInvite.Name);
+                SendGroupResult(session, GroupResult.Full, group.Id, groupInvite.InviteeName);
                 return;
             }
 
@@ -140,7 +140,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 group.ReferMember(membership, targetedPlayer);
         }
 
-        public static void HandleJoinGroupRequest(WorldSession session, ClientGroupRequestJoin joinRequest)
+        public static void HandleJoinGroupRequest(WorldSession session, ClientGroupJoinRequest joinRequest)
         {
             if (session.Player.GroupMembership1 != null) // player who did /join is already in a group. This has no effect.
                 return;
@@ -193,7 +193,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
 
             // Check if the targeted player declined the group invite.
-            if (response.Result == GroupInviteResult.Declined)
+            if (response.Result == GroupInviteResponse.Declined)
             {
                 joinedGroup.DeclineInvite(session.Player.GroupInvite);
                 return;
@@ -244,7 +244,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             // I never want to leave a group with only 1 member; So as with the Kick if there would be 1 member left after this operation
             // Just .Disband() the group.
             // TODO: If WoW is anything to go by; instance groups do NOT disband like this; once the instance is closed the group will be cleaned up.
-            if (leave.ShouldDisband || group.MemberCount == 2 && group.IsOpenWorld)
+            if (leave.Disband || group.MemberCount == 2 && group.IsOpenWorld)
             {
                 group.Disband();
                 return;
@@ -266,7 +266,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
 
             AssertPermission(session, groupId, GroupMemberInfoFlags.CanMark);
-            group.MarkUnit(clientMark.UnitId, clientMark.Marker);
+            group.MarkUnit(clientMark.UnitId, clientMark.TargetMarkerId);
         }
 
         public static void HandleGroupFlagsChanged(IWorldSession session, ClientGroupFlagsChanged clientGroupFlagsChanged)
@@ -284,28 +284,28 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             group.SetGroupFlags(clientGroupFlagsChanged.NewFlags);
         }
 
-        public static void HandleGroupSetRole(IWorldSession session, ClientGroupSetRole clientGroupSetRole)
+        public static void HandleGroupSetRole(IWorldSession session, ClientGroupSetMemberFlags clientSetMemberFlags)
         {
-            AssertGroupId(session, clientGroupSetRole.GroupId);
+            AssertGroupId(session, clientSetMemberFlags.GroupId);
 
-            IGroup group = GroupManager.Instance.GetGroupById(clientGroupSetRole.GroupId);
+            IGroup group = GroupManager.Instance.GetGroupById(clientSetMemberFlags.GroupId);
             if (group == null)
             {
-                SendGroupResult(session, GroupResult.GroupNotFound, clientGroupSetRole.GroupId, session.Player.Name);
+                SendGroupResult(session, GroupResult.GroupNotFound, clientSetMemberFlags.GroupId, session.Player.Name);
                 return;
             }
 
-            group.UpdateMemberRole(session.Player.GroupMembership1, clientGroupSetRole.TargetedPlayer, clientGroupSetRole.ChangedFlag, clientGroupSetRole.CurrentFlags.HasFlag(clientGroupSetRole.ChangedFlag));
+            group.UpdateMemberRole(session.Player.GroupMembership1, clientSetMemberFlags.TargetedPlayer, clientSetMemberFlags.ChangedFlag, clientSetMemberFlags.CurrentFlags.HasFlag(clientSetMemberFlags.ChangedFlag));
         }
 
-        public static void HandleSendReadyCheck(IWorldSession session, ClientGroupSendReadyCheck sendReadyCheck)
+        public static void HandleSendReadyCheck(IWorldSession session, ClientGroupReadyCheckRequest readyCheckRequest)
         {
-            AssertGroupId(session, sendReadyCheck.GroupId);
+            AssertGroupId(session, readyCheckRequest.GroupId);
 
-            IGroup group = GroupManager.Instance.GetGroupById(sendReadyCheck.GroupId);
+            IGroup group = GroupManager.Instance.GetGroupById(readyCheckRequest.GroupId);
             if (group == null)
             {
-                SendGroupResult(session, GroupResult.GroupNotFound, sendReadyCheck.GroupId, session.Player.Name);
+                SendGroupResult(session, GroupResult.GroupNotFound, readyCheckRequest.GroupId, session.Player.Name);
                 return;
             }
 
@@ -315,16 +315,16 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 AssertGroupLeader(session, group.Id);
 
             group.PrepareForReadyCheck();
-            group.PerformReadyCheck(session.Player, sendReadyCheck.Message);
+            group.PerformReadyCheck(session.Player, readyCheckRequest.Message);
         }
 
-        public static void HandleGroupLootRulesChange(IWorldSession session, ClientGroupLootRulesChange clientGroupLootRulesChange)
+        public static void HandleGroupLootRulesChange(IWorldSession session, ClientGroupSetLootRules clientGroupSetLootRules)
         {
-            AssertGroupId(session, clientGroupLootRulesChange.GroupId);
-            AssertGroupLeader(session, clientGroupLootRulesChange.GroupId);
+            AssertGroupId(session, clientGroupSetLootRules.GroupId);
+            AssertGroupLeader(session, clientGroupSetLootRules.GroupId);
 
-            IGroup group = GroupManager.Instance.GetGroupById(clientGroupLootRulesChange.GroupId);
-            group.UpdateLootRules(clientGroupLootRulesChange.LootRulesUnderThreshold, clientGroupLootRulesChange.LootRulesThresholdAndOver, clientGroupLootRulesChange.Threshold, clientGroupLootRulesChange.HarvestingRule);
+            IGroup group = GroupManager.Instance.GetGroupById(clientGroupSetLootRules.GroupId);
+            group.UpdateLootRules(clientGroupSetLootRules.LootRulesUnderThreshold, clientGroupSetLootRules.LootRulesThresholdAndOver, clientGroupSetLootRules.Threshold, clientGroupSetLootRules.HarvestingRule);
         }
 
         public static void ClientGroupPromote(IWorldSession session, ClientGroupPromote clientGroupPromote)
