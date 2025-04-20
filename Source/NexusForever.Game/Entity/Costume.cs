@@ -64,7 +64,7 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public Costume(IPlayer player, ClientCostumeSave costumeSave)
         {
-            Owner = player.CharacterId;
+            Owner = player.Identity.CharacterId;
             Index = (byte)costumeSave.Index;
             mask  = costumeSave.Mask;
 

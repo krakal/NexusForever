@@ -161,7 +161,7 @@ namespace NexusForever.Game.Matching.Match
         {
             base.MatchEnter(player);
 
-            IMatchTeam team = GetTeam(player.CharacterId);
+            IMatchTeam team = GetTeam(player.Identity.CharacterId);
             if (team == null)
                 throw new InvalidOperationException();
 

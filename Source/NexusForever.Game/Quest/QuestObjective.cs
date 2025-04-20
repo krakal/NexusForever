@@ -94,7 +94,7 @@ namespace NexusForever.Game.Quest
             {
                 context.Add(new CharacterQuestObjectiveModel
                 {
-                    Id       = player.CharacterId,
+                    Id       = player.Identity.CharacterId,
                     QuestId  = (ushort)QuestInfo.Entry.Id,
                     Index    = Index,
                     Progress = Progress
@@ -104,7 +104,7 @@ namespace NexusForever.Game.Quest
             {
                 var model = new CharacterQuestObjectiveModel
                 {
-                    Id      = player.CharacterId,
+                    Id      = player.Identity.CharacterId,
                     QuestId = (ushort)QuestInfo.Entry.Id,
                     Index   = Index
                 };

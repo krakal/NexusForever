@@ -284,7 +284,7 @@ namespace NexusForever.Game.Social
         public void LeaveDefaultChatChannels(IPlayer player)
         {
             foreach (ChatChannelType channelType in defaultChannelTypes)
-                GetChatChannel(channelType, 1)?.Leave(player.CharacterId);
+                GetChatChannel(channelType, 1)?.Leave(player.Identity.CharacterId);
         }
 
         public void SendMessage(IGameSession session, string message, string name = "", ChatChannelType type = ChatChannelType.System)

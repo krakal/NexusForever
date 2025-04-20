@@ -34,7 +34,7 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public Inventory(IPlayer owner, CharacterModel model)
         {
-            characterId = owner?.CharacterId ?? 0ul;
+            characterId = owner?.Identity.CharacterId ?? 0ul;
             player      = owner;
 
             foreach ((InventoryLocation location, uint defaultCapacity) in AssetManager.InventoryLocationCapacities)

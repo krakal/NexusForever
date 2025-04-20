@@ -69,7 +69,7 @@ namespace NexusForever.Game.Entity
 
             var model = new CharacterDatacubeModel
             {
-                Id       = player.CharacterId,
+                Id       = player.Identity.CharacterId,
                 Type     = (byte)Type,
                 Datacube = Id,
                 Progress = Progress

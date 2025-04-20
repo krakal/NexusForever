@@ -17,7 +17,7 @@ namespace NexusForever.Game.Social
         public ChatManager(IPlayer player)
         {
             owner = player;
-            foreach (IChatChannel channel in GlobalChatManager.Instance.GetCharacterChatChannels(ChatChannelType.Custom, owner.CharacterId))
+            foreach (IChatChannel channel in GlobalChatManager.Instance.GetCharacterChatChannels(ChatChannelType.Custom, owner.Identity.CharacterId))
                 channels.Add(channel.Id, channel);
         }
 
@@ -81,7 +81,7 @@ namespace NexusForever.Game.Social
             
             channels.Add(channel.Id, channel);
 
-            GlobalChatManager.Instance.TrackCharacterChatChannel(owner.CharacterId, ChatChannelType.Custom, channel.Id);
+            GlobalChatManager.Instance.TrackCharacterChatChannel(owner.Identity.CharacterId, ChatChannelType.Custom, channel.Id);
         }
 
         /// <summary>

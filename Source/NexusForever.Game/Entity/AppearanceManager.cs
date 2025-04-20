@@ -112,7 +112,7 @@ namespace NexusForever.Game.Entity
                 if (characterCustomisations.TryGetValue(label, out ICustomisation customisation))
                     customisation.Value = value;
                 else
-                    characterCustomisations.TryAdd(label, new Customisation(owner.CharacterId, label, value));
+                    characterCustomisations.TryAdd(label, new Customisation(owner.Identity.CharacterId, label, value));
             }
 
             foreach (uint label in characterCustomisations.Keys.Except(customisations.Select(t => t.Label).ToList()))
@@ -133,7 +133,7 @@ namespace NexusForever.Game.Entity
                 if (characterAppearances.TryGetValue(visual.Slot, out IAppearance appearance))
                     appearance.DisplayId = visual.DisplayId.Value;
                 else
-                    characterAppearances.TryAdd(visual.Slot, new Appearance(owner.CharacterId, visual.Slot, visual.DisplayId.Value));
+                    characterAppearances.TryAdd(visual.Slot, new Appearance(owner.Identity.CharacterId, visual.Slot, visual.DisplayId.Value));
 
                 owner.AddVisual(visual);
             }
@@ -155,7 +155,7 @@ namespace NexusForever.Game.Entity
                 if (characterBones.TryGetValue(i, out IBone bone))
                     bone.BoneValue = bones[i];
                 else
-                    characterBones.Add(i, new Bone(owner.CharacterId, i, bones[i]));
+                    characterBones.Add(i, new Bone(owner.Identity.CharacterId, i, bones[i]));
             }
 
             owner.EnqueueToVisible(new ServerEntityBoneUpdate

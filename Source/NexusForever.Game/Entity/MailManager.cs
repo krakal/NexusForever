@@ -73,7 +73,7 @@ namespace NexusForever.Game.Entity
             {
                 mail.Save(context);
 
-                if (mail.RecipientId == player.CharacterId)
+                if (mail.RecipientId == player.Identity.CharacterId)
                     player.MailManager.EnqueueMail(mail);
                 else
                 {
@@ -136,7 +136,7 @@ namespace NexusForever.Game.Entity
                 if (targetCharacter == null)
                     return GenericError.MailCannotFindPlayer;
 
-                if (targetCharacter.CharacterId == player.CharacterId)
+                if (targetCharacter.CharacterId == player.Identity.CharacterId)
                     return GenericError.MailCannotMailSelf;
 
                 // TODO: Check that the player is not blocked
@@ -182,7 +182,7 @@ namespace NexusForever.Game.Entity
                 var parameters = new MailParameters
                 {
                     RecipientCharacterId = targetCharacter.CharacterId,
-                    SenderCharacterId    = player.CharacterId,
+                    SenderCharacterId    = player.Identity.CharacterId,
                     MessageType          = SenderType.Player,
                     Subject              = mailSend.Subject,
                     Body                 = mailSend.Message,
@@ -228,7 +228,7 @@ namespace NexusForever.Game.Entity
             var parameters = new MailParameters
             {
                 MessageType          = SenderType.Creature,
-                RecipientCharacterId = player.CharacterId,
+                RecipientCharacterId = player.Identity.CharacterId,
                 CreatureId           = creatureId,
                 SubjectStringId      = subject,
                 BodyStringId         = body,
@@ -456,7 +456,7 @@ namespace NexusForever.Game.Entity
             GenericError result = GetResult();
             if (result == GenericError.Ok)
             {
-                mailAttachment.Item.CharacterId = player.CharacterId;
+                mailAttachment.Item.CharacterId = player.Identity.CharacterId;
                 player.Inventory.AddItem(mailAttachment.Item, InventoryLocation.Inventory);
 
                 mailItem.MarkAsNotReturnable();

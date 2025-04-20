@@ -69,7 +69,7 @@ namespace NexusForever.Game.Entity
             if (!activeSaved)
             {
                 // character is attached in Player::Save, this will only be local lookup
-                CharacterModel character = context.Character.Find(player.CharacterId);
+                CharacterModel character = context.Character.Find(player.Identity.CharacterId);
                 character.Title = activeTitleId;
 
                 EntityEntry<CharacterModel> entity = context.Entry(character);
@@ -110,7 +110,7 @@ namespace NexusForever.Game.Entity
                 }
             }
             else
-                titles.Add(titleId, new Title(player.CharacterId, entry));
+                titles.Add(titleId, new Title(player.Identity.CharacterId, entry));
 
             if (!suppress)
             {

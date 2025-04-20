@@ -56,7 +56,7 @@ namespace NexusForever.Game.Spell
         /// </summary>
         public ActionSet(byte index, IPlayer player)
         {
-            Owner      = player.CharacterId;
+            Owner      = player.Identity.CharacterId;
             Index      = index;
             TierPoints = MaxTierPoints;
             AmpPoints  = MaxAmpPoints - 10;

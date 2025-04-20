@@ -123,7 +123,7 @@ namespace NexusForever.Game.Matching.Match
         /// </summary>
         public void OnLogin(IPlayer player)
         {
-            IMatchTeam matchTeam = GetTeam(player.CharacterId);
+            IMatchTeam matchTeam = GetTeam(player.Identity.CharacterId);
             matchTeam.OnLogin(player);
         }
 
@@ -190,14 +190,14 @@ namespace NexusForever.Game.Matching.Match
         /// </summary>
         public virtual void MatchEnter(IPlayer player)
         {
-            IMatchTeam team = GetTeam(player.CharacterId);
+            IMatchTeam team = GetTeam(player.Identity.CharacterId);
             if (team == null)
                 throw new InvalidOperationException();
 
-            team.MatchEnter(player.CharacterId, MatchingMap);
+            team.MatchEnter(player.Identity.CharacterId, MatchingMap);
             player.SetTemporaryFaction(team.Faction);
 
-            log.LogTrace($"Member {player.CharacterId} has entered match {Guid}.");
+            log.LogTrace($"Member {player.Identity.CharacterId} has entered match {Guid}.");
         }
 
         /// <summary>
@@ -205,18 +205,18 @@ namespace NexusForever.Game.Matching.Match
         /// </summary>
         public void MatchExit(IPlayer player, bool teleport)
         {
-            IMatchTeam team = GetTeam(player.CharacterId);
+            IMatchTeam team = GetTeam(player.Identity.CharacterId);
             if (team == null)
                 return;
 
-            team.MatchExit(player.CharacterId, teleport);
+            team.MatchExit(player.Identity.CharacterId, teleport);
             player.RemoveTemporaryFaction();
 
-            log.LogTrace($"Member {player.CharacterId} has exited match {Guid}.");
+            log.LogTrace($"Member {player.Identity.CharacterId} has exited match {Guid}.");
 
             // certain match types prevent re-entry after exiting
             if (ShouldLeaveMatchOnExit())
-                MatchLeave(player.CharacterId);
+                MatchLeave(player.Identity.CharacterId);
         }
 
         private bool ShouldLeaveMatchOnExit()
@@ -292,8 +292,8 @@ namespace NexusForever.Game.Matching.Match
         /// </remarks>
         public IMapPosition GetReturnPosition(IPlayer player)
         {
-            IMatchTeam team = GetTeam(player.CharacterId);
-            return team.GetReturnPosition(player.CharacterId);
+            IMatchTeam team = GetTeam(player.Identity.CharacterId);
+            return team.GetReturnPosition(player.Identity.CharacterId);
         }
 
         protected void Broadcast(IWritable message)

@@ -36,7 +36,7 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public IBuybackItem GetItem(IPlayer player, uint uniqueId)
         {
-            return buybackInfo.TryGetValue(player.CharacterId, out IBuybackInfo info) ? info.GetItem(uniqueId) : null;
+            return buybackInfo.TryGetValue(player.Identity.CharacterId, out IBuybackInfo info) ? info.GetItem(uniqueId) : null;
         }
 
         /// <summary>
@@ -44,10 +44,10 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public void AddItem(IPlayer player, IItem item, uint quantity, List<(CurrencyType CurrencyTypeId, ulong CurrencyAmount)> currencyChange)
         {
-            if (!buybackInfo.ContainsKey(player.CharacterId))
-                buybackInfo.Add(player.CharacterId, new BuybackInfo());
+            if (!buybackInfo.ContainsKey(player.Identity.CharacterId))
+                buybackInfo.Add(player.Identity.CharacterId, new BuybackInfo());
 
-            uint uniqueId = buybackInfo[player.CharacterId].AddItem(item, quantity, currencyChange);
+            uint uniqueId = buybackInfo[player.Identity.CharacterId].AddItem(item, quantity, currencyChange);
 
             var networkBuybackItem = new NetworkBuybackItem
             {
@@ -76,12 +76,12 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public void RemoveItem(IPlayer player, IBuybackItem item)
         {
-            if (!buybackInfo.TryGetValue(player.CharacterId, out IBuybackInfo info))
+            if (!buybackInfo.TryGetValue(player.Identity.CharacterId, out IBuybackInfo info))
                 return;
 
             info.RemoveItem(item.UniqueId);
             if (!info.Any())
-                buybackInfo.Remove(player.CharacterId);
+                buybackInfo.Remove(player.Identity.CharacterId);
 
             player.Session.EnqueueMessageEncrypted(new ServerBuybackItemRemoved
             {
@@ -94,7 +94,7 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public void SendBuybackItems(IPlayer player)
         {
-            if (!buybackInfo.TryGetValue(player.CharacterId, out IBuybackInfo info))
+            if (!buybackInfo.TryGetValue(player.Identity.CharacterId, out IBuybackInfo info))
                 return;
 
             var serverBuybackItems = new ServerBuybackItems();

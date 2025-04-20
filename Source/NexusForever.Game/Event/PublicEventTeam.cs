@@ -121,7 +121,7 @@ namespace NexusForever.Game.Event
         {
             IPublicEventTeamMember member = memberFactory.Resolve();
             member.Initialise(player);
-            members.Add(player.CharacterId, member);
+            members.Add(player.Identity.CharacterId, member);
         }
 
         /// <summary>
@@ -269,8 +269,8 @@ namespace NexusForever.Game.Event
             if (vote == null)
                 return;
 
-            vote.Choice(player.CharacterId, choice);
-            log.LogTrace($"Vote {vote.VoteId} for team {Team} response {choice} received from character {player.CharacterId}.");
+            vote.Choice(player.Identity.CharacterId, choice);
+            log.LogTrace($"Vote {vote.VoteId} for team {Team} response {choice} received from character {player.Identity.CharacterId}.");
 
             if (vote.IsFinalised)
             {

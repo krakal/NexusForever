@@ -69,7 +69,7 @@ namespace NexusForever.Game.Reputation
 
             var model = new CharacterReputation
             {
-                Id        = player.CharacterId,
+                Id        = player.Identity.CharacterId,
                 FactionId = (uint)Id,
                 Amount    = Amount
             };

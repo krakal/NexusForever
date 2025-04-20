@@ -31,7 +31,7 @@ namespace NexusForever.Game.Event
             if (CharacterId != 0ul)
                 throw new InvalidOperationException($"Public event information for character {CharacterId} is already initialised!");
 
-            CharacterId = player.CharacterId;
+            CharacterId = player.Identity.CharacterId;
 
             log.LogTrace($"Public event information initialised for character {CharacterId}.");
         }

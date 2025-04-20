@@ -11,22 +11,36 @@ namespace NexusForever.Game.Group
     {
         private Dictionary<ulong, IGroup> groups = new Dictionary<ulong, IGroup>();
         private Dictionary<ulong, IGroup> groupOwner = new Dictionary<ulong, IGroup>();
+        private Dictionary<PlayerIdentity, List<IGroup>> groupMembers = new Dictionary<PlayerIdentity, List <IGroup>>();
 
         /// <summary>
-        /// Create a <see cref="Group"/> for supplied <see cref="Player"/>
+        /// Create a <see cref="Group"/> with supplied <see cref="Player"/> as leader.
         /// </summary>
-        public IGroup CreateGroup(IPlayer player)
+        public IGroup CreatePartyGroup(IPlayer leader)
         {
             // Player is already leader in a group
-            if (groupOwner.ContainsKey(player.CharacterId))
+            if (groupOwner.ContainsKey(leader.Identity.CharacterId))
                 return null;
 
-            IGroup group = Group.CreateOpenWorld(NextGroupId(), player);
+            IGroup group = Group.CreatePartyGroup(NextGroupId(), leader);
             groups.Add(group.Id, group);
-            groupOwner.Add(player.CharacterId, group);
+            groupOwner.Add(leader.Identity.CharacterId, group);
+
+            if (groupMembers.TryGetValue(leader.Identity, out List<IGroup> groupList))
+            {
+                groupList.Add(group);
+            }
+            else
+            {
+                groupList = new List<IGroup>();
+                groupList.Add(group);
+                groupMembers.Add(leader.Identity, groupList);
+            }
 
             return group;
         }
+
+        // TODO(krakal): Expecting to need CreateInstanceGroup/ConvertToInstanceGroup when matching making is added.
 
         /// <summary>
         /// Removes the Group from the Session.
@@ -46,7 +60,7 @@ namespace NexusForever.Game.Group
         /// </summary>
         public IGroup GetGroupByLeader(IPlayer player)
         {
-            if (!groupOwner.TryGetValue(player.CharacterId, out var group))
+            if (!groupOwner.TryGetValue(player.Identity.CharacterId, out var group))
                 return null;
 
             return group;
@@ -63,6 +77,15 @@ namespace NexusForever.Game.Group
             return group;
         }
 
+        /// <summary>
+        /// Get a List of <see cref="Group"/> for the player by their <see cref="PlayerIdentity"/> 
+        /// </summary>
+        public List<IGroup> GetGroupsByPlayerIdentity(PlayerIdentity player)
+        {
+            groupMembers.TryGetValue(player, out List<IGroup> playersGroups);
+            return playersGroups;
+        }
+
         public bool FindGroupMembershipsForPlayer(IPlayer player, out IGroupMember membership1, out IGroupMember membership2)
         {
             membership1 = null;
@@ -70,7 +93,7 @@ namespace NexusForever.Game.Group
 
             foreach (IGroup group in groups.Values)
             {
-                IGroupMember membership = group.FindMember(new PlayerIdentity() { CharacterId = player.CharacterId, RealmId = RealmContext.Instance.RealmId });
+                IGroupMember membership = group.FindMember(new PlayerIdentity() { CharacterId = player.Identity.CharacterId, RealmId = RealmContext.Instance.RealmId });
 
                 if (membership == null)
                     continue;
@@ -112,7 +135,7 @@ namespace NexusForever.Game.Group
                 {
                     Player = new PlayerIdentity
                     {
-                        CharacterId = player.CharacterId,
+                        CharacterId = player.Identity.CharacterId,
                         RealmId = RealmContext.Instance.RealmId
                     },
                     GroupInfo = membership2.Group.Build()
@@ -125,7 +148,7 @@ namespace NexusForever.Game.Group
             {
                 Player = new PlayerIdentity
                 {
-                    CharacterId = player.CharacterId,
+                    CharacterId = player.Identity.CharacterId,
                     RealmId = RealmContext.Instance.RealmId
                 },
                 GroupInfo = membership.Group.Build()

@@ -164,9 +164,9 @@ namespace NexusForever.Game.Event
                 IPublicEventCharacter character = publicEventCharacterFactory.Resolve();
                 character.Initialise(player);
 
-                characters.TryAdd(player.CharacterId, character);
+                characters.TryAdd(player.Identity.CharacterId, character);
 
-                log.LogTrace($"Public event information for character {player.CharacterId} added to map {map.Entry.Id} store.");
+                log.LogTrace($"Public event information for character {player.Identity.CharacterId} added to map {map.Entry.Id} store.");
             }
 
             InvokeScriptCollection<IPublicEventScript>(s => s.OnAddToMap(gridEntity));
@@ -182,14 +182,14 @@ namespace NexusForever.Game.Event
             if (gridEntity is not IPlayer player)
                 return;
 
-            if (!characters.TryGetValue(player.CharacterId, out IPublicEventCharacter character))
+            if (!characters.TryGetValue(player.Identity.CharacterId, out IPublicEventCharacter character))
                 return;
 
             character.OnRemoveFromMap(player);
 
-            characters.Remove(player.CharacterId);
+            characters.Remove(player.Identity.CharacterId);
 
-            log.LogTrace($"Public event information for character {player.CharacterId} removed from map {map.Entry.Id} store.");
+            log.LogTrace($"Public event information for character {player.Identity.CharacterId} removed from map {map.Entry.Id} store.");
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace NexusForever.Game.Event
         /// </summary>
         public void UpdateObjective(IPlayer player, PublicEventObjectiveType type, uint objectId, int count)
         {
-            if (!characters.TryGetValue(player.CharacterId, out IPublicEventCharacter character))
+            if (!characters.TryGetValue(player.Identity.CharacterId, out IPublicEventCharacter character))
                 return;
 
             character.UpdateObjective(player, type, objectId, count);
@@ -208,7 +208,7 @@ namespace NexusForever.Game.Event
         /// </summary>
         public void UpdateStat(IPlayer player, PublicEventStat stat, uint value)
         {
-            if (!characters.TryGetValue(player.CharacterId, out IPublicEventCharacter character))
+            if (!characters.TryGetValue(player.Identity.CharacterId, out IPublicEventCharacter character))
                 return;
 
             character.UpdateStat(player, stat, value);
@@ -219,7 +219,7 @@ namespace NexusForever.Game.Event
         /// </summary>
         public void UpdateCustomStat(IPlayer player, uint index, uint value)
         {
-            if (!characters.TryGetValue(player.CharacterId, out IPublicEventCharacter character))
+            if (!characters.TryGetValue(player.Identity.CharacterId, out IPublicEventCharacter character))
                 return;
 
             character.UpdateCustomStat(player, index, value);
@@ -230,7 +230,7 @@ namespace NexusForever.Game.Event
         /// </summary>
         public void RespondVote(IPlayer player, uint eventId, uint choice)
         {
-            if (!characters.TryGetValue(player.CharacterId, out IPublicEventCharacter character))
+            if (!characters.TryGetValue(player.Identity.CharacterId, out IPublicEventCharacter character))
                 return;
 
             character.RespondVote(player, eventId, choice);

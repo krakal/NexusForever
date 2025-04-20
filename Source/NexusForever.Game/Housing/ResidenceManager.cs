@@ -18,7 +18,7 @@ namespace NexusForever.Game.Housing
         public ResidenceManager(IPlayer player)
         {
             owner     = player;
-            Residence = GlobalResidenceManager.Instance.GetResidenceByOwner(owner.CharacterId);
+            Residence = GlobalResidenceManager.Instance.GetResidenceByOwner(owner.Identity.CharacterId);
         }
 
         /// <summary>

@@ -77,7 +77,7 @@ namespace NexusForever.Game.Matching.Match
         /// </summary>
         public void OnLogin(IPlayer player)
         {
-            IMatchTeamMember matchTeamMember = GetMember(player.CharacterId);
+            IMatchTeamMember matchTeamMember = GetMember(player.Identity.CharacterId);
             SendMatchJoin(matchTeamMember);
         }
 

@@ -290,8 +290,8 @@ namespace NexusForever.Game.Guild
         /// </summary>
         public void OnPlayerLogin(IPlayer player)
         {
-            if (!members.TryGetValue(player.CharacterId, out IGuildMember member))
-                throw new ArgumentException($"Invalid member {player.CharacterId} for guild {Id}.");
+            if (!members.TryGetValue(player.Identity.CharacterId, out IGuildMember member))
+                throw new ArgumentException($"Invalid member {player.Identity.CharacterId} for guild {Id}.");
 
             MemberOnline(member);
 
@@ -312,8 +312,8 @@ namespace NexusForever.Game.Guild
         /// </summary>
         public void OnPlayerLogout(IPlayer player)
         {
-            if (!members.TryGetValue(player.CharacterId, out IGuildMember member))
-                throw new ArgumentException($"Invalid member {player.CharacterId} for guild {Id}.");
+            if (!members.TryGetValue(player.Identity.CharacterId, out IGuildMember member))
+                throw new ArgumentException($"Invalid member {player.Identity.CharacterId} for guild {Id}.");
 
             MemberOffline(member);
 
@@ -337,7 +337,7 @@ namespace NexusForever.Game.Guild
             if (MemberCount >= MaxMembers)
                 return new GuildResultInfo(GuildResult.CannotInviteGuildFull);
 
-            if (GetMember(player.CharacterId) != null)
+            if (GetMember(player.Identity.CharacterId) != null)
                 return new GuildResultInfo(GuildResult.AlreadyAMember);
 
             return new GuildResultInfo(GuildResult.Success);
@@ -355,9 +355,9 @@ namespace NexusForever.Game.Guild
             IGuildMember member;
             if (MemberCount == 0u)
             {
-                log.Trace($"Guild{Id} has no leader, new member {player.CharacterId} will be assigned to leader.");
+                log.Trace($"Guild{Id} has no leader, new member {player.Identity.CharacterId} will be assigned to leader.");
 
-                LeaderId = player.CharacterId;
+                LeaderId = player.Identity.CharacterId;
                 member   = AddMember(player, 0);
                 SendGuildResult(player.Session, GuildResult.YouCreated, Id, referenceText: Name);
             }
@@ -401,7 +401,7 @@ namespace NexusForever.Game.Guild
         /// </summary>
         public IGuildResultInfo CanLeaveGuild(IPlayer player)
         {
-            IGuildMember member = GetMember(player.CharacterId);
+            IGuildMember member = GetMember(player.Identity.CharacterId);
             if (member == null)
                 return new GuildResultInfo(GuildResult.NotInThatGuild);
 
@@ -427,8 +427,8 @@ namespace NexusForever.Game.Guild
         /// </remarks>
         public void LeaveGuild(IPlayer player, GuildResult reason)
         {
-            if (!members.TryGetValue(player.CharacterId, out IGuildMember member))
-                throw new ArgumentException($"Invalid member {player.CharacterId} for guild {Id}.");
+            if (!members.TryGetValue(player.Identity.CharacterId, out IGuildMember member))
+                throw new ArgumentException($"Invalid member {player.Identity.CharacterId} for guild {Id}.");
 
             LeaveGuild(member, reason == GuildResult.GuildDisbanded);
             SendGuildResult(player.Session, reason, referenceText: Name);
@@ -639,10 +639,10 @@ namespace NexusForever.Game.Guild
             if (!ranks.TryGetValue(rank, out IGuildRank guildRank))
                 throw new ArgumentException($"Invalid rank {rank} for guild {Id}.");
 
-            if (members.TryGetValue(player.CharacterId, out IGuildMember member))
+            if (members.TryGetValue(player.Identity.CharacterId, out IGuildMember member))
             {
                 if (!member.PendingDelete)
-                    throw new InvalidOperationException($"Member {player.CharacterId} for guild {Id} already exists!");
+                    throw new InvalidOperationException($"Member {player.Identity.CharacterId} for guild {Id} already exists!");
 
                 // rank is pending delete, reuse object
                 member.EnqueueDelete(false);
@@ -650,14 +650,14 @@ namespace NexusForever.Game.Guild
             else
             {
                 // new members default to the lowest rank
-                member = new GuildMember(this, player.CharacterId, guildRank);
-                members.Add(player.CharacterId, member);
+                member = new GuildMember(this, player.Identity.CharacterId, guildRank);
+                members.Add(player.Identity.CharacterId, member);
             }
 
             MemberOnline(member);
             guildRank.AddMember(member);
 
-            log.Trace($"Added member {player.CharacterId} to guild {Id}.");
+            log.Trace($"Added member {player.Identity.CharacterId} to guild {Id}.");
             return member;
         }
 

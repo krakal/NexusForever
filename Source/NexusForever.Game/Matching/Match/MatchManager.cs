@@ -166,7 +166,7 @@ namespace NexusForever.Game.Matching.Match
         public void OnLogin(IPlayer player)
         {
             // update client with match information
-            IMatchCharacter matchCharacter = GetMatchCharacter(player.CharacterId);
+            IMatchCharacter matchCharacter = GetMatchCharacter(player.Identity.CharacterId);
             matchCharacter.Match?.OnLogin(player);
         }
 
@@ -176,7 +176,7 @@ namespace NexusForever.Game.Matching.Match
         public void OnLogout(IPlayer player)
         {
             // decline match proposal on logout
-            IMatchCharacter matchCharacter = GetMatchCharacter(player.CharacterId);
+            IMatchCharacter matchCharacter = GetMatchCharacter(player.Identity.CharacterId);
             matchCharacter.MatchProposal?.Respond(player, false);
         }
 

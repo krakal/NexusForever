@@ -19,9 +19,9 @@ namespace NexusForever.Game
         public void AddPlayer(IPlayer player)
         {
             lockedAccounts.Add(player.Account.Id);
-            pending.Add(player.CharacterId, player);
+            pending.Add(player.Identity.CharacterId, player);
 
-            log.Trace($"Added player {player.CharacterId}.");
+            log.Trace($"Added player {player.Identity.CharacterId}.");
         }
 
         /// <summary>
@@ -29,10 +29,10 @@ namespace NexusForever.Game
         /// </summary>
         public void RemovePlayer(IPlayer player)
         {
-            pending.Remove(player.CharacterId);
+            pending.Remove(player.Identity.CharacterId);
             lockedAccounts.Remove(player.Account.Id);
 
-            log.Trace($"Removed player {player.CharacterId}.");
+            log.Trace($"Removed player {player.Identity.CharacterId}.");
         }
 
         /// <summary>

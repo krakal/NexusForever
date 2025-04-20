@@ -171,7 +171,7 @@ namespace NexusForever.Game.Quest
                 {
                     context.Add(new CharacterQuestModel
                     {
-                        Id      = player.CharacterId,
+                        Id      = player.Identity.CharacterId,
                         QuestId = Id,
                         State   = (byte)State,
                         Flags   = (byte)Flags,
@@ -183,7 +183,7 @@ namespace NexusForever.Game.Quest
                 {
                     var model = new CharacterQuestModel
                     {
-                        Id      = player.CharacterId,
+                        Id      = player.Identity.CharacterId,
                         QuestId = Id
                     };
 
@@ -193,7 +193,7 @@ namespace NexusForever.Game.Quest
                 {
                     var model = new CharacterQuestModel
                     {
-                        Id      = player.CharacterId,
+                        Id      = player.Identity.CharacterId,
                         QuestId = Id
                     };
 

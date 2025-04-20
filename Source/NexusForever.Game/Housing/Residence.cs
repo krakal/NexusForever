@@ -332,7 +332,7 @@ namespace NexusForever.Game.Housing
         {
             Id             = GlobalResidenceManager.Instance.NextResidenceId;
             Type           = ResidenceType.Residence;
-            OwnerId        = player.CharacterId;
+            OwnerId        = player.Identity.CharacterId;
             propertyInfoId = PropertyInfoId.Residence;
             name           = $"{player.Name}'s House";
             privacyLevel   = ResidencePrivacyLevel.Public;
@@ -628,7 +628,7 @@ namespace NexusForever.Game.Housing
                     if (community == null)
                         return false;
 
-                    IGuildMember member = community.GetMember(player.CharacterId);
+                    IGuildMember member = community.GetMember(player.Identity.CharacterId);
                     if (member == null)
                         return false;
 
@@ -637,7 +637,7 @@ namespace NexusForever.Game.Housing
                 case ResidenceType.Residence:
                 {
                     // TODO: roommates can also update decor
-                    return player.CharacterId == OwnerId;
+                    return player.Identity.CharacterId == OwnerId;
                 }
                 default:
                     return false;

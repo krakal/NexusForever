@@ -106,7 +106,7 @@ namespace NexusForever.Game.Guild
         {
             owner = player;
 
-            foreach (IGuildBase guild in GlobalGuildManager.Instance.GetCharacterGuilds(owner.CharacterId))
+            foreach (IGuildBase guild in GlobalGuildManager.Instance.GetCharacterGuilds(owner.Identity.CharacterId))
             {
                 if (guild.Type == GuildType.Guild)
                     Guild = guild as IGuild;
@@ -114,7 +114,7 @@ namespace NexusForever.Game.Guild
                 guilds.Add(guild.Id, guild);
             }
 
-            log.Trace($"Loaded {guilds.Count} guild(s) for character {owner.CharacterId}.");
+            log.Trace($"Loaded {guilds.Count} guild(s) for character {owner.Identity.CharacterId}.");
 
             // check that the player is allowed to be affiliated with this guild
             // validation can fail if the player is removed from the guild or the guild is disbanded while offline
@@ -130,7 +130,7 @@ namespace NexusForever.Game.Guild
                 return;
 
             // character is attached in Player::Save, this will only be local lookup
-            CharacterModel character = context.Character.Find(owner.CharacterId);
+            CharacterModel character = context.Character.Find(owner.Identity.CharacterId);
             EntityEntry<CharacterModel> entity = context.Entry(character);
 
             if ((saveMask & SaveMask.Affiliation) != 0)
@@ -173,7 +173,7 @@ namespace NexusForever.Game.Guild
             uint index = 0u;
             foreach (IGuildBase guild in guilds.Values)
             {
-                NetworkGuildMember member = guild.GetMember(owner.CharacterId).Build();
+                NetworkGuildMember member = guild.GetMember(owner.Identity.CharacterId).Build();
                 if (guildAffiliation?.Id == guild.Id)
                 {
                     guildInit.NameplateIndex = index;
@@ -310,7 +310,7 @@ namespace NexusForever.Game.Guild
             pendingInvite = new GuildInvite
             {
                 GuildId   = id,
-                InviteeId = invitee.CharacterId
+                InviteeId = invitee.Identity.CharacterId
             };
 
             owner.Session.EnqueueMessageEncrypted(new ServerGuildInvite
@@ -321,7 +321,7 @@ namespace NexusForever.Game.Guild
                 Flags      = (uint)guild.Flags
             });
 
-            log.Trace($"Invited character {owner.CharacterId} to guild {id}.");
+            log.Trace($"Invited character {owner.Identity.CharacterId} to guild {id}.");
         }
 
         /// <summary>
@@ -350,7 +350,7 @@ namespace NexusForever.Game.Guild
         public void AcceptInviteToGuild(bool accepted)
         {
             if (pendingInvite == null)
-                throw new InvalidOperationException($"Invalid guild invite for {owner.CharacterId}!");
+                throw new InvalidOperationException($"Invalid guild invite for {owner.Identity.CharacterId}!");
 
             IPlayer invitee = PlayerManager.Instance.GetPlayer(pendingInvite.InviteeId);
             if (accepted)
@@ -409,7 +409,7 @@ namespace NexusForever.Game.Guild
 
             guild.JoinGuild(owner);
 
-            GlobalGuildManager.Instance.TrackCharacterGuild(owner.CharacterId, guild.Id);
+            GlobalGuildManager.Instance.TrackCharacterGuild(owner.Identity.CharacterId, guild.Id);
         }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace NexusForever.Game.Guild
         public void UpdateGuildAffiliation(ulong guildId)
         {
             if (!guilds.TryGetValue(guildId, out IGuildBase guild))
-                throw new ArgumentException($"Invalid guild id {guildId} for character {owner.CharacterId}!");
+                throw new ArgumentException($"Invalid guild id {guildId} for character {owner.Identity.CharacterId}!");
 
             // update Holomark if our new affiliation is a guild
             if (guild.Type == GuildType.Guild)
@@ -489,7 +489,7 @@ namespace NexusForever.Game.Guild
         private void RemoveGuildAffiliation()
         {
             if (GuildAffiliation == null)
-                throw new InvalidOperationException($"Unable to remove guild affilation for character {owner.CharacterId}, no existing affilation!");
+                throw new InvalidOperationException($"Unable to remove guild affilation for character {owner.Identity.CharacterId}, no existing affilation!");
 
             if (GuildAffiliation.Type == GuildType.Guild)
                 RemoveHolomark();
@@ -510,7 +510,7 @@ namespace NexusForever.Game.Guild
         public void UpdateHolomark(bool leftHidden, bool rightHidden, bool backHidden, bool distanceNear)
         {
             if (Guild == null)
-                throw new InvalidOperationException($"Failed to update Holomark positional data for character {owner.CharacterId}!");
+                throw new InvalidOperationException($"Failed to update Holomark positional data for character {owner.Identity.CharacterId}!");
 
             CharacterFlag mask = owner.Flags;
 
@@ -563,7 +563,7 @@ namespace NexusForever.Game.Guild
         public void UpdateHolomark()
         {
             if (Guild == null)
-               throw new InvalidOperationException($"Failed to update Holomark visual data for character {owner.CharacterId}!");
+               throw new InvalidOperationException($"Failed to update Holomark visual data for character {owner.Identity.CharacterId}!");
 
             owner.AddVisual(ItemSlot.GuildStandardScanLines,      (ushort)Guild.Standard.ScanLines.GuildStandardPartEntry.ItemDisplayIdStandard);
             owner.AddVisual(ItemSlot.GuildStandardBackgroundIcon, (ushort)Guild.Standard.BackgroundIcon.GuildStandardPartEntry.ItemDisplayIdStandard);

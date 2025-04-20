@@ -62,7 +62,7 @@ namespace NexusForever.Game.Entity
                 amountAdded = AddAmountToMaterial(materialId, amount);
             else
             {
-                tradeskillMaterials.Add(materialId, new TradeskillMaterial(player.CharacterId, materialId));
+                tradeskillMaterials.Add(materialId, new TradeskillMaterial(player.Identity.CharacterId, materialId));
                 amountAdded = AddAmountToMaterial(materialId, amount);
             }
 
@@ -89,7 +89,7 @@ namespace NexusForever.Game.Entity
                 amountAdded = AddAmountToMaterial(materialId, amount);
             else
             {
-                tradeskillMaterials.Add(materialId, new TradeskillMaterial(player.CharacterId, materialId));
+                tradeskillMaterials.Add(materialId, new TradeskillMaterial(player.Identity.CharacterId, materialId));
                 amountAdded = AddAmountToMaterial(materialId, amount);
             }
 
@@ -130,7 +130,7 @@ namespace NexusForever.Game.Entity
                     return; // Swallow the issue for now.
             }
             else
-                tradeskillMaterials.Add(materialId, new TradeskillMaterial(player.CharacterId, materialId));
+                tradeskillMaterials.Add(materialId, new TradeskillMaterial(player.Identity.CharacterId, materialId));
 
             RemoveAmount(materialId, amount);
         }

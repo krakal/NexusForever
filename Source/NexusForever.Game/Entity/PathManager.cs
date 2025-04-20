@@ -60,7 +60,7 @@ namespace NexusForever.Game.Entity
                 throw new ArgumentException($"{path} is already added to the player!");
 
             var pathEntry = new PathEntry(
-                player.CharacterId,
+                player.Identity.CharacterId,
                 path,
                 unlocked
             );

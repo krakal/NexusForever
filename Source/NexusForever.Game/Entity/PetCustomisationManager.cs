@@ -69,7 +69,7 @@ namespace NexusForever.Game.Entity
             if (entry.PrerequisiteId > 0)
                 return;
 
-            petFlairs.Add(id, new PetFlair(player.CharacterId, entry));
+            petFlairs.Add(id, new PetFlair(player.Identity.CharacterId, entry));
 
             if (!player.IsLoading)
             {
@@ -91,7 +91,7 @@ namespace NexusForever.Game.Entity
             ulong hash = PetCustomisationHash(type, objectId);
             if (!petCustomisations.TryGetValue(hash, out IPetCustomisation customisation))
             {
-                customisation = new PetCustomisation(player.CharacterId, type, objectId);
+                customisation = new PetCustomisation(player.Identity.CharacterId, type, objectId);
                 petCustomisations.Add(hash, customisation);
             }
 
@@ -124,7 +124,7 @@ namespace NexusForever.Game.Entity
             ulong hash = PetCustomisationHash(type, objectId);
             if (!petCustomisations.TryGetValue(hash, out IPetCustomisation customisation))
             {
-                customisation = new PetCustomisation(player.CharacterId, type, objectId);
+                customisation = new PetCustomisation(player.Identity.CharacterId, type, objectId);
                 petCustomisations.Add(hash, customisation);
             }
 

@@ -111,7 +111,7 @@ namespace NexusForever.Game.Entity
             if (currencies.ContainsKey((CurrencyType)currencyEntry.Id))
                 throw new ArgumentException($"Currency {currencyEntry.Id} is already added to the player!");
 
-            var currency = new Currency(player.CharacterId, currencyEntry);
+            var currency = new Currency(player.Identity.CharacterId, currencyEntry);
             currencies.Add(currency.Id, currency);
             return currency;
         }

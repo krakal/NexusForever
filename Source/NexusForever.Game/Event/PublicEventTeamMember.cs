@@ -44,7 +44,7 @@ namespace NexusForever.Game.Event
             if (CharacterId != 0)
                 throw new InvalidOperationException();
 
-            CharacterId = player.CharacterId;
+            CharacterId = player.Identity.CharacterId;
             @class      = player.Class;
             path        = player.Path;
 
@@ -98,7 +98,7 @@ namespace NexusForever.Game.Event
                 UnitId = player.Guid,
                 Player = new PlayerIdentity
                 {
-                    CharacterId = player.CharacterId,
+                    CharacterId = player.Identity.CharacterId,
                     RealmId     = realmContext.RealmId
                 },
                 Class = @class,

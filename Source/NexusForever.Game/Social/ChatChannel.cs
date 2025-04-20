@@ -157,7 +157,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public void OnMemberLogin(IPlayer player)
         {
-            IChatChannelMember member = GetMember(player.CharacterId);
+            IChatChannelMember member = GetMember(player.Identity.CharacterId);
             if (member == null)
                 return;
 
@@ -180,7 +180,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public void OnMemberLogout(IPlayer player)
         {
-            IChatChannelMember member = GetMember(player.CharacterId);
+            IChatChannelMember member = GetMember(player.Identity.CharacterId);
             if (member == null)
                 return;
 
@@ -192,7 +192,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public ChatResult CanJoin(IPlayer player, string password)
         {
-            IChatChannelMember member = GetMember(player.CharacterId);
+            IChatChannelMember member = GetMember(player.Identity.CharacterId);
             if (member != null)
                 return ChatResult.AlreadyMember;
 
@@ -213,7 +213,7 @@ namespace NexusForever.Game.Social
             if (!string.IsNullOrEmpty(Password) && Password != password)
                 return;
 
-            Join(player.CharacterId);
+            Join(player.Identity.CharacterId);
 
             player.Session.EnqueueMessageEncrypted(new ServerChatJoin
             {
@@ -261,7 +261,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public void Leave(IPlayer player, ChatChannelLeaveReason reason)
         {
-            Leave(player.CharacterId);
+            Leave(player.Identity.CharacterId);
 
             player.Session.EnqueueMessageEncrypted(new ServerChatLeave
             {
@@ -315,7 +315,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public ChatResult CanKick(IPlayer player, string target)
         {
-            IChatChannelMember invokeMember = GetMember(player.CharacterId);
+            IChatChannelMember invokeMember = GetMember(player.Identity.CharacterId);
             if (invokeMember == null)
                 return ChatResult.NotMember;
 
@@ -372,7 +372,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public void ListMembers(IPlayer player)
         {
-            IChatChannelMember member = GetMember(player.CharacterId);
+            IChatChannelMember member = GetMember(player.Identity.CharacterId);
             if (member == null)
                 return;
 
@@ -397,7 +397,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public ChatResult CanSetPassword(IPlayer player, string password)
         {
-            IChatChannelMember member = GetMember(player.CharacterId);
+            IChatChannelMember member = GetMember(player.Identity.CharacterId);
             if (member == null)
                 return ChatResult.NotMember;
 
@@ -419,7 +419,7 @@ namespace NexusForever.Game.Social
         /// </remarks>
         public void SetPassword(IPlayer player, string password)
         {
-            IChatChannelMember member = GetMember(player.CharacterId);
+            IChatChannelMember member = GetMember(player.Identity.CharacterId);
             if (member == null)
                 return;
 
@@ -451,7 +451,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public ChatResult CanPassOwner(IPlayer player, string target)
         {
-            IChatChannelMember invokeMember = GetMember(player.CharacterId);
+            IChatChannelMember invokeMember = GetMember(player.Identity.CharacterId);
             if (invokeMember == null)
                 return ChatResult.NotMember;
 
@@ -476,7 +476,7 @@ namespace NexusForever.Game.Social
         /// </remarks>
         public void PassOwner(IPlayer player, string target)
         {
-            IChatChannelMember invokeMember = GetMember(player.CharacterId);
+            IChatChannelMember invokeMember = GetMember(player.Identity.CharacterId);
             if (invokeMember == null)
                 return;
 
@@ -510,7 +510,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public ChatResult CanMakeModerator(IPlayer player, string target)
         {
-            IChatChannelMember invokeMember = GetMember(player.CharacterId);
+            IChatChannelMember invokeMember = GetMember(player.Identity.CharacterId);
             if (invokeMember == null)
                 return ChatResult.NotMember;
 
@@ -535,7 +535,7 @@ namespace NexusForever.Game.Social
         /// </remarks>
         public void MakeModerator(IPlayer player, string target, bool status)
         {
-            IChatChannelMember invokeMember = GetMember(player.CharacterId);
+            IChatChannelMember invokeMember = GetMember(player.Identity.CharacterId);
             if (invokeMember == null)
                 return;
 
@@ -571,7 +571,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public ChatResult CanMuteMember(IPlayer player, string target)
         {
-            IChatChannelMember invokeMember = GetMember(player.CharacterId);
+            IChatChannelMember invokeMember = GetMember(player.Identity.CharacterId);
             if (invokeMember == null)
                 return ChatResult.NotMember;
 
@@ -596,7 +596,7 @@ namespace NexusForever.Game.Social
         /// </remarks>
         public void MuteMember(IPlayer player, string target, bool status)
         {
-            IChatChannelMember invokeMember = GetMember(player.CharacterId);
+            IChatChannelMember invokeMember = GetMember(player.Identity.CharacterId);
             if (invokeMember == null)    
                 return;
 
@@ -632,7 +632,7 @@ namespace NexusForever.Game.Social
         /// </summary>
         public ChatResult CanBroadcast(IPlayer player, string text)
         {
-            IChatChannelMember member = GetMember(player.CharacterId);
+            IChatChannelMember member = GetMember(player.Identity.CharacterId);
             if (member == null)
                 return ChatResult.NotMember;
 

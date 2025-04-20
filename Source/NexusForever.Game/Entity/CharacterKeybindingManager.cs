@@ -33,7 +33,7 @@ namespace NexusForever.Game.Entity
             return new BiInputKeySet
             {
                 Bindings    = bindingSet.Select(b => b.Build()).ToList(),
-                CharacterId = player.CharacterId
+                CharacterId = player.Identity.CharacterId
             };
         }
     }

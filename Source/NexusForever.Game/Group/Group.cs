@@ -99,7 +99,7 @@ namespace NexusForever.Game.Group
         {
             IGroupMember member = new GroupMember(NextMemberId(), this, player);
             members.Add(member);
-            membershipsByCharacterID.Add(player.CharacterId, member);
+            membershipsByCharacterID.Add(player.Identity.CharacterId, member);
             player.AddToGroup(member);
             return member;
         }
@@ -187,7 +187,7 @@ namespace NexusForever.Game.Group
         /// </summary>
         public IGroupInvite CreateInvite(IGroupMember inviter, IPlayer invitedPlayer, GroupInviteType type)
         {
-            IGroupInvite invite = new GroupInvite(NextInviteId(), this, invitedPlayer.CharacterId, invitedPlayer.Name, inviter, type);
+            IGroupInvite invite = new GroupInvite(NextInviteId(), this, invitedPlayer.Identity.CharacterId, invitedPlayer.Name, inviter, type);
             if (!invites.TryAdd(invite.InviteId, invite))
                 return null;
 
@@ -440,7 +440,7 @@ namespace NexusForever.Game.Group
                     {
                         Player = new PlayerIdentity
                         {
-                            CharacterId = player.CharacterId,
+                            CharacterId = player.Identity.CharacterId,
                             RealmId = RealmContext.Instance.RealmId
                         },
                         GroupInfo = Build()
@@ -461,7 +461,7 @@ namespace NexusForever.Game.Group
                 {
                     Player = new PlayerIdentity
                     {
-                        CharacterId = addedPlayer.CharacterId,
+                        CharacterId = addedPlayer.Identity.CharacterId,
                         RealmId = RealmContext.Instance.RealmId
                     },
                     GroupInfo = Build()
@@ -638,7 +638,7 @@ namespace NexusForever.Game.Group
             BroadcastPacket(new ServerGroupReadyCheck
             {
                 GroupId = Id,
-                Invoker = new PlayerIdentity() { CharacterId = invoker.CharacterId, RealmId = RealmContext.Instance.RealmId },
+                Invoker = new PlayerIdentity() { CharacterId = invoker.Identity.CharacterId, RealmId = RealmContext.Instance.RealmId },
                 Message = message,
             });
         }
@@ -701,7 +701,7 @@ namespace NexusForever.Game.Group
                         Member = prospective.BuildGroupMember(),
                         Flags = 0,  // I am assuming this is useless, the client seems todo nothing with it
                         GroupIndex = 0, // I am assuming this is useless, the client seems todo nothing with it
-                        MemberIdentity = new PlayerIdentity() { CharacterId = prospective.CharacterId, RealmId = RealmContext.Instance.RealmId }
+                        MemberIdentity = new PlayerIdentity() { CharacterId = prospective.Identity.CharacterId, RealmId = RealmContext.Instance.RealmId }
                     }
                 }
             );
@@ -898,12 +898,12 @@ namespace NexusForever.Game.Group
         }
 
         /// <summary>
-        /// Creates a new Open world Group.
+        /// Creates a new Party Group.
         /// </summary>
         /// <param name="id">The identifier of the Group.</param>
         /// <param name="leader">The Leader of the Group</param>
         /// <returns>The newly created group.</returns>
-        public static IGroup CreateOpenWorld(ulong id, IPlayer leader)
+        public static IGroup CreatePartyGroup(ulong id, IPlayer leader)
         {
             IGroup g = new Group(id);
             g.Flags |= GroupFlags.OpenWorld;
@@ -917,7 +917,7 @@ namespace NexusForever.Game.Group
         /// <param name="id">The identifier of the Group.</param>
         /// <param name="leader">The Leader of the Group</param>
         /// <returns>The newly created group.</returns>
-        public static IGroup CreateInstance(ulong id, IPlayer leader)
+        public static IGroup CreateInstanceGroup(ulong id, IPlayer leader)
         {
             IGroup g = new Group(id);
             g.Leader = g.CreateMember(leader);

@@ -59,7 +59,7 @@ namespace NexusForever.Game.Entity
             if (isDirty)
             {
                 // character is attached in Player::Save, this will only be local lookup
-                CharacterModel character = context.Character.Find(player.CharacterId);
+                CharacterModel character = context.Character.Find(player.Identity.CharacterId);
                 EntityEntry<CharacterModel> entity = context.Entry(character);
 
                 character.ActiveCostumeIndex = (sbyte)(CostumeIndex ?? -1);

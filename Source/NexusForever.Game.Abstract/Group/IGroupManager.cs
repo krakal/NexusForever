@@ -5,7 +5,7 @@ namespace NexusForever.Game.Abstract.Group
 {
     public interface IGroupManager : IUpdate
     {
-        IGroup CreateGroup(IPlayer player);
+        IGroup CreatePartyGroup(IPlayer player);
         bool FindGroupMembershipsForPlayer(IPlayer player, out IGroupMember membership1, out IGroupMember membership2);
         IGroup GetGroupById(ulong groupId);
         IGroup GetGroupByLeader(IPlayer player);

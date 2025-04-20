@@ -88,7 +88,7 @@ namespace NexusForever.Game.Matching.Match
 
         private IMatchProposalTeam GetTeam(IPlayer player)
         {
-            return characterTeams.TryGetValue(player.CharacterId, out IMatchProposalTeam team) ? team : null;
+            return characterTeams.TryGetValue(player.Identity.CharacterId, out IMatchProposalTeam team) ? team : null;
         }
 
         private IMatchProposalTeam GetOpposingTeam(IMatchProposalTeam matchProposalTeam)
@@ -105,7 +105,7 @@ namespace NexusForever.Game.Matching.Match
             if (team == null)
                 throw new InvalidOperationException();
 
-            team.Respond(player.CharacterId, response);
+            team.Respond(player.Identity.CharacterId, response);
 
             if (response == false)
             {

@@ -118,7 +118,7 @@ namespace NexusForever.Game.Social
                 Text                 = whisper.Message,
                 Formats              = parser.ParseChatLinks(player, whisper.Formats).ToList(),
                 CrossFaction         = player.Faction1 != target.Faction1,
-                FromCharacterId      = player.CharacterId,
+                FromCharacterId      = player.Identity.CharacterId,
                 FromCharacterRealmId = RealmContext.Instance.RealmId,
                 GM                   = player.Account.RbacManager.HasPermission(Permission.GMFlag)
             };

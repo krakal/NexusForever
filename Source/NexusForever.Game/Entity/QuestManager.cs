@@ -49,7 +49,7 @@ namespace NexusForever.Game.Entity
                 IQuestInfo info = GlobalQuestManager.Instance.GetQuestInfo(questModel.QuestId);
                 if (info == null)
                 {
-                    log.Error($"Player {player.CharacterId} has an invalid quest {questModel.QuestId}!");
+                    log.Error($"Player {player.Identity.CharacterId} has an invalid quest {questModel.QuestId}!");
                     continue;
                 }
 
@@ -247,23 +247,23 @@ namespace NexusForever.Game.Entity
         private void QuestAdd(IQuestInfo info, IQuest quest, IItem item)
         {
             if (quest?.State is QuestState.Accepted or QuestState.Achieved)
-                throw new QuestException($"Player {player.CharacterId} tried to start quest {info.Entry.Id} which is already in progress!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to start quest {info.Entry.Id} which is already in progress!");
 
             // if quest has already been completed make sure it's repeatable and the reset period has elapsed
             if (quest?.State == QuestState.Completed)
             {
                 if (info.Entry.QuestRepeatPeriodEnum == 0u)
-                    throw new QuestException($"Player {player.CharacterId} tried to start quest {info.Entry.Id} which they have already completed!");
+                    throw new QuestException($"Player {player.Identity.CharacterId} tried to start quest {info.Entry.Id} which they have already completed!");
 
                 DateTime? resetTime = GetQuest((ushort)info.Entry.Id, GetQuestFlags.Completed).Reset;
                 if (DateTime.UtcNow < resetTime)
-                    throw new QuestException($"Player {player.CharacterId} tried to start quest {info.Entry.Id} which hasn't reset yet!");
+                    throw new QuestException($"Player {player.Identity.CharacterId} tried to start quest {info.Entry.Id} which hasn't reset yet!");
             }
 
             if (item != null)
             {
                 if (info.Entry.Id != item.Info.Entry.Quest2IdActivation)
-                    throw new QuestException($"Player {player.CharacterId} tried to start quest {info.Entry.Id} from invalid item {item.Info.Entry.Id}!");
+                    throw new QuestException($"Player {player.Identity.CharacterId} tried to start quest {info.Entry.Id} from invalid item {item.Info.Entry.Id}!");
 
                 // TODO: consume charge
             }
@@ -274,13 +274,13 @@ namespace NexusForever.Game.Entity
                         .Any(c => player.GetVisibleCreature<WorldEntity>(c).Any())
                     && !GlobalQuestManager.Instance.GetQuestCommunicatorMessages((ushort)info.Entry.Id)
                         .Any(m => m.Meets(player)))
-                    throw new QuestException($"Player {player.CharacterId} tried to start quest {info.Entry.Id} without quest giver!");
+                    throw new QuestException($"Player {player.Identity.CharacterId} tried to start quest {info.Entry.Id} without quest giver!");
             }
 
             // server doesn't send an error message for prerequisites since the client does the exact same checks
             // it's assumed that a player could never get here without cheating in some way
             if (!MeetsPrerequisites(info))
-                throw new QuestException($"Player {player.CharacterId} tried to start quest {info.Entry.Id} without meeting the prerequisites!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to start quest {info.Entry.Id} without meeting the prerequisites!");
 
             QuestAdd(info);
         }
@@ -402,10 +402,10 @@ namespace NexusForever.Game.Entity
 
             IQuest quest = GetQuest(questId, GetQuestFlags.Inactive);
             if (quest == null)
-                throw new QuestException($"Player {player.CharacterId} tried to restart quest {questId} which they don't have!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to restart quest {questId} which they don't have!");
 
             if (quest.State != QuestState.Botched)
-                throw new QuestException($"Player {player.CharacterId} tried to restart quest {questId} which hasn't been failed!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to restart quest {questId} which hasn't been failed!");
 
             QuestAdd(info, quest, null);
         }
@@ -420,10 +420,10 @@ namespace NexusForever.Game.Entity
 
             IQuest quest = GetQuest(questId, GetQuestFlags.Active | GetQuestFlags.Inactive);
             if (quest == null || quest.PendingDelete)
-                throw new QuestException($"Player {player.CharacterId} tried to abandon quest {questId} which they don't have!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to abandon quest {questId} which they don't have!");
 
             if (!quest.CanAbandon())
-                throw new QuestException($"Player {player.CharacterId} tried to abandon quest {questId} which can't be abandoned!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to abandon quest {questId} which can't be abandoned!");
 
             // don't delete quests that have been mentioned, they may not be able to be re-collected.
             if (!quest.PendingCreate && quest.CanDelete())
@@ -466,10 +466,10 @@ namespace NexusForever.Game.Entity
 
             IQuest quest = GetQuest(questId);
             if (quest == null || quest.PendingDelete)
-                throw new QuestException($"Player {player.CharacterId} tried to achieve quest {questId} which they don't have!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to achieve quest {questId} which they don't have!");
 
             if (quest.State != QuestState.Accepted)
-                throw new QuestException($"Player {player.CharacterId} tried to achieve quest {questId} with invalid state!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to achieve quest {questId} with invalid state!");
 
             foreach (IQuestObjectiveInfo info in quest.Info.Objectives)
                 quest.ObjectiveUpdate(info.Type, info.Entry.Data, info.Entry.Count);
@@ -516,7 +516,7 @@ namespace NexusForever.Game.Entity
             if (quest == null)
             {
                 if (!questInfo.IsAutoComplete())
-                    throw new QuestException($"Player {player.CharacterId} tried to complete quest {questId} which they don't have!");
+                    throw new QuestException($"Player {player.Identity.CharacterId} tried to complete quest {questId} which they don't have!");
 
                 QuestAdd(questId, null);
                 quest = GetQuest(questId);
@@ -524,19 +524,19 @@ namespace NexusForever.Game.Entity
             }
 
             if (quest.State != QuestState.Achieved)
-                throw new QuestException($"Player {player.CharacterId} tried to complete quest {questId} which wasn't complete!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to complete quest {questId} which wasn't complete!");
 
             if (communicator)
             {
                 // TODO: check if this is complete, client seems to also refer to contact info
                 // for more see QuestTracker:HelperShowQuestCallbackBtn in LUA which contains the logic to show the complete button in the quest tracker
                 if (!quest.Info.IsCommunicatorReceived())
-                    throw new QuestException($"Player {player.CharacterId} tried to complete quest {questId} without communicator message!");
+                    throw new QuestException($"Player {player.Identity.CharacterId} tried to complete quest {questId} without communicator message!");
             }
             else
             {
                 if (!GlobalQuestManager.Instance.GetQuestReceivers(questId).Any(c => player.GetVisibleCreature<WorldEntity>(c).Any()))
-                    throw new QuestException($"Player {player.CharacterId} tried to complete quest {questId} without any quest receiver!");
+                    throw new QuestException($"Player {player.Identity.CharacterId} tried to complete quest {questId} without any quest receiver!");
             }
 
             // reclaim any quest specific items
@@ -577,7 +577,7 @@ namespace NexusForever.Game.Entity
             if (reward != 0)
             {
                 if (!info.Rewards.TryGetValue(reward, out Quest2RewardEntry entry))
-                    throw new QuestException($"Player {player.CharacterId} tried to complete quest {info.Entry.Id} with invalid reward!");
+                    throw new QuestException($"Player {player.Identity.CharacterId} tried to complete quest {info.Entry.Id} with invalid reward!");
 
                 // TODO: make sure reward is valid for player, some rewards are conditional
 
@@ -636,10 +636,10 @@ namespace NexusForever.Game.Entity
 
             IQuest quest = GetQuest(questId, GetQuestFlags.Active);
             if (quest == null)
-                throw new QuestException($"Player {player.CharacterId} tried to track quest {questId} which they don't have!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to track quest {questId} which they don't have!");
 
             if (quest.State != QuestState.Accepted && quest.State != QuestState.Achieved)
-                throw new QuestException($"Player {player.CharacterId} tried to track quest {questId} with invalid state!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to track quest {questId} with invalid state!");
 
             if (tracked)
                 quest.Flags |= QuestStateFlags.Tracked;
@@ -660,17 +660,17 @@ namespace NexusForever.Game.Entity
 
             IQuest quest = GetQuest(questId);
             if (quest == null)
-                throw new QuestException($"Player {player.CharacterId} tried to share quest {questId} which they don't have!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to share quest {questId} which they don't have!");
 
             if (!quest.CanShare())
-                throw new QuestException($"Player {player.CharacterId} tried to share quest {questId} which can't be shared!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to share quest {questId} which can't be shared!");
 
             if (player.TargetGuid == null)
-                throw new QuestException($"Player {player.CharacterId} tried to share quest {questId} without a target!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to share quest {questId} without a target!");
 
             IPlayer recipient = player.GetVisible<IPlayer>(player.TargetGuid.Value);
             if (recipient == null)
-                throw new QuestException($"Player {player.CharacterId} tried to share quest {questId} to an invalid player!");
+                throw new QuestException($"Player {player.Identity.CharacterId} tried to share quest {questId} to an invalid player!");
 
             // TODO
 

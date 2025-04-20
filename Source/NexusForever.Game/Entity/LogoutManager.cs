@@ -56,7 +56,7 @@ namespace NexusForever.Game.Entity
                 }
             });
 
-            log.Trace($"Character {player.CharacterId} started logout.");
+            log.Trace($"Character {player.Identity.CharacterId} started logout.");
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace NexusForever.Game.Entity
             timer = null;
             State = LogoutState.None;
 
-            log.Trace($"Character {player.CharacterId} cancelled logout.");
+            log.Trace($"Character {player.Identity.CharacterId} cancelled logout.");
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace NexusForever.Game.Entity
 
             // force logout can be performed if a reason is supplied
             if (reason != LogoutReason.None)
-                log.Warn($"Character {player.CharacterId} is being force logged out with reason {reason}.");
+                log.Warn($"Character {player.Identity.CharacterId} is being force logged out with reason {reason}.");
 
             player.Session.EnqueueMessageEncrypted(new ServerLogout
             {

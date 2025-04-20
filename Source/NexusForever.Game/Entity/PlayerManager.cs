@@ -19,8 +19,8 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public void AddPlayer(IPlayer player)
         {
-            players.TryAdd(player.CharacterId, player);
-            log.Trace($"Added player {player.CharacterId}.");
+            players.TryAdd(player.Identity.CharacterId, player);
+            log.Trace($"Added player {player.Identity.CharacterId}.");
         }
 
         /// <summary>
@@ -28,8 +28,8 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public void RemovePlayer(IPlayer player)
         {
-            players.TryRemove(player.CharacterId, out _);
-            log.Trace($"Removed player {player.CharacterId}.");
+            players.TryRemove(player.Identity.CharacterId, out _);
+            log.Trace($"Removed player {player.Identity.CharacterId}.");
         }
 
         /// <summary>

@@ -30,7 +30,7 @@ namespace NexusForever.Game.Group
         {
             Id = id;
             Group = group;
-            CharacterId = player.CharacterId;
+            CharacterId = player.Identity.CharacterId;
             ZoneId = (ushort)player.Zone.Id;
             AreFlagsSet = false;
         }

@@ -52,7 +52,7 @@ namespace NexusForever.Game.Entity
                 return;
 
             // character is attached in Player::Save, this will only be local lookup
-            CharacterModel character = context.Character.Find(player.CharacterId);
+            CharacterModel character = context.Character.Find(player.Identity.CharacterId);
             character.TotalXp = TotalXp;
             character.RestBonusXp = RestBonusXp;
 

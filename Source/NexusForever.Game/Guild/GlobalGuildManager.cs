@@ -380,7 +380,7 @@ namespace NexusForever.Game.Guild
             if (guild == null)
                 return new GuildResultInfo(GuildResult.NotAGuild);
 
-            IGuildMember member = guild.GetMember(player.CharacterId);
+            IGuildMember member = guild.GetMember(player.Identity.CharacterId);
             if (member == null)
                 return new GuildResultInfo(GuildResult.NotInThatGuild);
 

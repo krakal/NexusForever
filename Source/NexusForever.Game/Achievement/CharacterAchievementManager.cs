@@ -9,7 +9,7 @@ namespace NexusForever.Game.Achievement
     public sealed class CharacterAchievementManager : BaseAchievementManager<CharacterAchievementModel>, ICharacterAchievementManager
     {
         private readonly IPlayer owner;
-        protected override ulong OwnerId => owner.CharacterId;
+        protected override ulong OwnerId => owner.Identity.CharacterId;
 
         /// <summary>
         /// Create a new <see cref="CharacterAchievementManager"/> from existing <see cref="CharacterModel"/> database model.

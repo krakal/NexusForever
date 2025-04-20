@@ -163,7 +163,7 @@ namespace NexusForever.Game.Map
         /// </summary>
         public bool CanCreateInstance(IPlayer player)
         {
-            if (instanceCounts.TryGetValue(player.CharacterId, out uint instanceCount)
+            if (instanceCounts.TryGetValue(player.Identity.CharacterId, out uint instanceCount)
                 && instanceCount > (SharedConfiguration.Instance.Get<MapConfig>().MaxInstances ?? 10u))
                 return false;
 
@@ -179,7 +179,7 @@ namespace NexusForever.Game.Map
             if (player.Account.RbacManager.HasPermission(Permission.BypassInstanceLimits))
                 return;
 
-            instanceCounts.AddOrUpdate(player.CharacterId, 1, (k, v) => v + 1);
+            instanceCounts.AddOrUpdate(player.Identity.CharacterId, 1, (k, v) => v + 1);
         }
     }
 }

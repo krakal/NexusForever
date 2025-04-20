@@ -36,7 +36,7 @@ namespace NexusForever.Game.Entity
 
             var model = new CharacterEntitlementModel
             {
-                Id            = player.CharacterId,
+                Id            = player.Identity.CharacterId,
                 EntitlementId = (byte)Type,
                 Amount        = amount
             };

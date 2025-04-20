@@ -57,7 +57,7 @@ namespace NexusForever.Game.Map
             {
                 var model = new CharacterZonemapHexgroupModel
                 {
-                    Id       = player.CharacterId,
+                    Id       = player.Identity.CharacterId,
                     ZoneMap  = (ushort)entry.Id,
                     HexGroup = hexGroupId
                 };
