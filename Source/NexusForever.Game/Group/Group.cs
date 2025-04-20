@@ -2,7 +2,6 @@ using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Abstract.Group;
 using NexusForever.Game.Entity;
 using NexusForever.Game.Static.Group;
-using NexusForever.Network;
 using NexusForever.Network.Message;
 using NexusForever.Network.Session;
 using NexusForever.Network.World.Entity;
@@ -78,7 +77,7 @@ namespace NexusForever.Game.Group
             markerInfo = new GroupMarkerInfo(this);
 
             SetGroupSize();
-            positionUpdateTimer = new UpdateTimer(1, false);
+            positionUpdateTimer = new UpdateTimer(5, false);
         }
 
         /// <summary>

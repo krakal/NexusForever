@@ -49,6 +49,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 return;
             }
 
+            // TODO(krakal): Add function that finds player amongst all groups. Just because player.GroupMembership is null does not mean they are not in a group.
             if (session.Player.GroupMembership1 == null)
             {
                 // Player is not part of a group - lets create a new one and invite the new guy.

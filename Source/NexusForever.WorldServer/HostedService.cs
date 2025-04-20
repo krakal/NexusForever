@@ -172,6 +172,8 @@ namespace NexusForever.WorldServer
 
                 // process commands after everything else in the tick has processed
                 CommandManager.Instance.Update(lastTick);
+
+                GroupManager.Instance.Update(lastTick);
             });
 
             // initialise network and command managers last to make sure the rest of the server is ready for invoked handlers
