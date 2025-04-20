@@ -21,8 +21,8 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 return;
             }
 
-            // Check if targeted player is already grouped in a Group1 they cannot be re-invited, only instance finder can create an instance group.
-            if (targetedPlayer.GroupMembership1 != null)
+            // Check if targeted player is already grouped in an instance Group they cannot be re-invited, only instance finder can create an instance group.
+            if (targetedPlayer.GroupMembershipInstance != null)
             {
                 GroupHandler.SendGroupResult(session, GroupResult.Grouped, targetPlayerName: groupInvite.InviteeName);
                 return;
@@ -50,7 +50,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
 
             // TODO(krakal): Add function that finds player amongst all groups. Just because player.GroupMembership is null does not mean they are not in a group.
-            if (session.Player.GroupMembership1 == null)
+            if (session.Player.GroupMembershipInstance == null)
             {
                 // Player is not part of a group - lets create a new one and invite the new guy.
                 IGroup newGroup = GroupManager.Instance.CreateGroup(session.Player);
@@ -59,8 +59,8 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
 
             // At this point, the player must be part of a group
-            IGroup group = session.Player.GroupMembership1.Group;
-            IGroupMember membership = session.Player.GroupMembership1;
+            IGroup group = session.Player.GroupMembershipInstance.Group;
+            IGroupMember membership = session.Player.GroupMembershipInstance;
 
             if (group.IsFull)
             {

@@ -116,6 +116,7 @@ namespace NexusForever.Game.Group
                 }
             }
 
+            // TODO(krakal): Add StatUpdate, spread over the members over 5 seconds, don't send them all together as one lump.
 
             positionUpdateTimer.Update(lastTick);
             if (positionUpdateTimer.HasElapsed)
@@ -815,11 +816,11 @@ namespace NexusForever.Game.Group
 
         private IGroupMember GetMembershipForGroupFromPlayer(IPlayer player)
         {
-            if (player.GroupMembership1.Group.Id == Id)
-                return player.GroupMembership1;
+            if (player.GroupMembershipInstance.Group.Id == Id)
+                return player.GroupMembershipInstance;
 
-            if (player.GroupMembership2.Group.Id == Id)
-                return player.GroupMembership2;
+            if (player.GroupMembershipParty.Group.Id == Id)
+                return player.GroupMembershipParty;
 
             throw new InvalidOperationException("Player is not a member of this group.");
         }
