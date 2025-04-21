@@ -2,11 +2,11 @@
 using NexusForever.Game.Static.Account;
 using NexusForever.GameTable.Model;
 using NexusForever.Network.Message;
-using NexusForever.Network.World.Message.Model.Shared;
+using NexusForever.ModelMigration;
 
 namespace NexusForever.Game.Abstract.Account.Currency
 {
-    public interface IAccountCurrency : IDatabaseAuth, INetworkBuildable<AccountCurrency>
+    public interface IAccountCurrency : IDatabaseAuth, INetworkBuildable<AccountCurrencyModel>
     {
         AccountCurrencyType CurrencyId { get; }
         AccountCurrencyTypeEntry Entry { get; }
