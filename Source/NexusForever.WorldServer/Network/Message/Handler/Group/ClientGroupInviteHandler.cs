@@ -63,6 +63,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 IGroup group = null;
                 IGroupMember inviterMember = null;
 
+                // Priority goes to Instance group if the inviter is in one.
                 if (inviter.GroupMembershipInstance != null)
                 {
                     group = inviter.GroupMembershipInstance.Group;
@@ -81,7 +82,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 }
 
                 // The inviter is the Leader or has Invite permissions, so just do an invite.
-                if (group.Leader.Id == inviterMember.Id || inviterMember.Flags.HasFlag(GroupMemberInfoFlags.CanInvite))
+                if (group.Leader.Identity == inviterMember.Identity || inviterMember.Flags.HasFlag(GroupMemberInfoFlags.CanInvite))
                     group.Invite(inviter, invitee);
                 else // inviter is another group memeber w/o invite permissions, so we create a referal.
                     group.ReferMember(inviterMember, invitee);

@@ -1,4 +1,5 @@
-﻿using NexusForever.Game.Abstract.Group;
+﻿using NexusForever.Game.Abstract.Entity;
+using NexusForever.Game.Abstract.Group;
 using NexusForever.Game.Group;
 using NexusForever.Game.Static.Group;
 using NexusForever.Network.Message;
@@ -12,12 +13,14 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         /// </summary>
         public void HandleMessage(IWorldSession session, ClientGroupLeave leave)
         {
+            IPlayer leaver = session.Player;
+
             GroupHandler.AssertGroupId(session, leave.GroupId);
 
             IGroup group = GroupManager.Instance.GetGroupById(leave.GroupId);
             if (group == null)
             {
-                GroupHandler.SendGroupResult(session, GroupResult.GroupNotFound, leave.GroupId, session.Player.Name);
+                GroupHandler.SendGroupResult(session, GroupResult.GroupNotFound, leave.GroupId, leaver.Name);
                 return;
             }
 
@@ -31,7 +34,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
 
             //TODO: This may not be correct? I need to look into if i can leave my main group whilst part of an instance group.
-            group.RemoveMember(session.Player.GroupMembershipInstance);
+            group.RemoveMember(leaver.GroupMembershipInstance);
         }
     }
 }

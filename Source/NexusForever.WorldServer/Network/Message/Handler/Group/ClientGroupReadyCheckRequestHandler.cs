@@ -21,7 +21,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 return;
             }
 
-            if (group.IsRaid && !session.Player.GroupMembership1.IsPartyLeader)
+            if (group.IsRaid && !session.Player.GroupMembershipInstance.IsPartyLeader)
                 GroupHandler.AssertPermission(session, group.Id, GroupMemberInfoFlags.CanReadyCheck);
             else
                 GroupHandler.AssertGroupLeader(session, group.Id);

@@ -33,14 +33,14 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         public static void AssertGroupId(IWorldSession session, ulong recievedGroupId, bool assertPrimaryGroup = true)
         {
             // If the player is not part of a Group1 they cannot be part of a Group2 so no need to check.
-            if (session.Player.GroupMembership1 == null || session.Player.GroupMembership1.Group == null)
+            if (session.Player.GroupMembershipInstance == null || session.Player.GroupMembershipInstance.Group == null)
                 throw new InvalidPacketValueException();
 
-            ulong sessionGroupId = session.Player.GroupMembership1.Group.Id;
+            ulong sessionGroupId = session.Player.GroupMembershipInstance.Group.Id;
             if (sessionGroupId != recievedGroupId && assertPrimaryGroup)
                 throw new InvalidPacketValueException("Player does not belong to the group they wish to perform the action on.");
 
-            if (recievedGroupId != session.Player.GroupMembership1.Group.Id && recievedGroupId != session.Player.GroupMembership2?.Group?.Id)
+            if (recievedGroupId != session.Player.GroupMembershipInstance.Group.Id && recievedGroupId != session.Player.GroupMembershipParty?.Group?.Id)
                 throw new InvalidPacketValueException("Player does not belong to the group they wish to perform the action on.");
         }
 
@@ -49,14 +49,14 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         /// </summary>
         public static void AssertPermission(IWorldSession session, ulong groupID, GroupMemberInfoFlags action)
         {
-            if (session.Player.GroupMembership1.Group.Id == groupID)
+            if (session.Player.GroupMembershipInstance.Group.Id == groupID)
             {
-                if (!session.Player.GroupMembership1.Flags.HasFlag(action))
+                if (!session.Player.GroupMembershipInstance.Flags.HasFlag(action))
                     throw new InvalidPacketValueException("Player does not have the Group Role required to perform that action.");
             }
-            else if (session.Player.GroupMembership2.Group.Id == groupID)
+            else if (session.Player.GroupMembershipParty.Group.Id == groupID)
             {
-                if (!session.Player.GroupMembership2.Flags.HasFlag(action))
+                if (!session.Player.GroupMembershipParty.Flags.HasFlag(action))
                     throw new InvalidPacketValueException("Player does not have the Group Role required to perform that action.");
             }
         }
@@ -66,14 +66,14 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         /// </summary>
         public static void AssertGroupLeader(IWorldSession session, ulong groupID)
         {
-            if (session.Player.GroupMembership1.Group.Id == groupID)
+            if (session.Player.GroupMembershipInstance.Group.Id == groupID)
             {
-                if (!session.Player.GroupMembership1.IsPartyLeader)
+                if (!session.Player.GroupMembershipInstance.IsPartyLeader)
                     throw new InvalidPacketValueException("Player must be the leader of the group to perform this action.");
             }
-            else if (session.Player.GroupMembership2.Group.Id == groupID)
+            else if (session.Player.GroupMembershipParty.Group.Id == groupID)
             {
-                if (!session.Player.GroupMembership2.IsPartyLeader)
+                if (!session.Player.GroupMembershipParty.IsPartyLeader)
                     throw new InvalidPacketValueException("Player must be the leader of the group to perform this action.");
             }
         }

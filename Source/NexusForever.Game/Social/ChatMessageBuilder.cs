@@ -15,8 +15,7 @@ namespace NexusForever.Game.Social
         public bool GM { get; set; }
         public bool Self { get; set; }
         public bool AutoResponse { get; set; }
-        public ulong FromCharacterId { get; set; }
-        public ushort FromCharacterRealmId { get; set; }
+        public PlayerIdentity FromIdentity { get; set; } = new();
         public string FromName { get; set; }
         public string FromRealm { get; set; }
         public ChatPresenceState PresenceState { get; set; }
@@ -98,11 +97,7 @@ namespace NexusForever.Game.Social
                 Self          = Self,
                 AutoResponse  = AutoResponse,
 
-                From          = new PlayerIdentity
-                {
-                    RealmId     = FromCharacterRealmId,
-                    CharacterId = FromCharacterId
-                },
+                From          = FromIdentity,
                
                 FromName      = FromName,
                 FromRealm     = FromRealm,

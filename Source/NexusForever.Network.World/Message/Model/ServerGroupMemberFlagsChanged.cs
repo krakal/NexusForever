@@ -8,7 +8,7 @@ namespace NexusForever.Network.World.Message.Model
     public class ServerGroupMemberFlagsChanged : IWritable
     {
         public ulong GroupId { get; set; }
-        public uint Unused { get; set; } // Unpacked but unused by Client
+        public uint GroupMessageIndex { get; set; } // Unpacked but unused by Client
         public PlayerIdentity MemberIdentity { get; set; } = new PlayerIdentity();
         public GroupMemberInfoFlags ChangedFlags { get; set; }
         public bool IsFromPromotion { get; set; }
@@ -16,7 +16,7 @@ namespace NexusForever.Network.World.Message.Model
         public void Write(GamePacketWriter writer)
         {
             writer.Write(GroupId);
-            writer.Write(Unused);
+            writer.Write(GroupMessageIndex);
             MemberIdentity.Write(writer);
             writer.Write(ChangedFlags, 32);
             writer.Write(IsFromPromotion);

@@ -107,7 +107,7 @@ namespace NexusForever.Game.Spell
             {
                 var model = new CharacterSpellModel
                 {
-                    Id           = owner.Identity.CharacterId,
+                    Id           = Owner.Identity.CharacterId,
                     Spell4BaseId = BaseInfo.Entry.Id,
                     Tier         = tier
                 };
@@ -118,7 +118,7 @@ namespace NexusForever.Game.Spell
             {
                 var model = new CharacterSpellModel
                 {
-                    Id           = owner.Identity.CharacterId,
+                    Id           = Owner.Identity.CharacterId,
                     Spell4BaseId = BaseInfo.Entry.Id,
                 };
 

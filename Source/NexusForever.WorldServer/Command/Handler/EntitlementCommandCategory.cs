@@ -34,7 +34,7 @@ namespace NexusForever.WorldServer.Command.Handler
             public void HandleEntitlementCommandCharacterList(ICommandContext context)
             {
                 IPlayer player = context.GetTargetOrInvoker<IPlayer>();
-                context.SendMessage($"Entitlements for character {player.CharacterId}:");
+                context.SendMessage($"Entitlements for character {player.Identity.CharacterId}:");
                 foreach (ICharacterEntitlement entitlement in player.EntitlementManager)
                     context.SendMessage($"Entitlement: {entitlement.Type}, Value: {entitlement.Amount}");
             }

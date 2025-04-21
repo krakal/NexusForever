@@ -347,11 +347,7 @@ namespace NexusForever.Game.Mail
                 CostOnDeliveryAmount = IsCashOnDelivery && !HasPaidOrCollectedCurrency ? CurrencyAmount : 0,
                 ExpiryTimeInDays     = ExpiryTime,
                 Flags                = Flags,
-                Sender = new PlayerIdentity
-                {
-                    RealmId     = isPlayer ? RealmContext.Instance.RealmId : (ushort)0,
-                    CharacterId = isPlayer ? SenderId : 0ul
-                },
+                Sender = new PlayerIdentity(realmId: isPlayer ? RealmContext.Instance.RealmId : (ushort)0, characterId: isPlayer ? SenderId : 0ul),
             };
 
             foreach (IMailAttachment attachment in mailAttachments)

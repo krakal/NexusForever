@@ -11,14 +11,14 @@ namespace NexusForever.Network.World.Message.Model
     public class ServerGroupRemove : IWritable
     {
         public ulong GroupId { get; set; }
-        public uint Unused { get; set; } // Unpacked but unused by client
+        public uint GroupMessageIndex { get; set; } // Unpacked but unused by client
         public PlayerIdentity TargetPlayer { get; set; } = new PlayerIdentity();
         public RemoveReason Reason { get; set; }
 
         public void Write(GamePacketWriter writer)
         {
             writer.Write(GroupId);
-            writer.Write(Unused);
+            writer.Write(GroupMessageIndex);
             TargetPlayer.Write(writer);
             writer.Write(Reason, 4u);
         }

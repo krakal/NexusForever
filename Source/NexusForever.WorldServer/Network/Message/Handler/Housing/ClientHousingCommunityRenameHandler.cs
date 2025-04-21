@@ -48,7 +48,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Housing
             HousingResult GetResult()
             {
                 // client checks if the player has a rank of 0, this is the same
-                if (community.LeaderId != session.Player.CharacterId)
+                if (community.LeaderId != session.Player.Identity.CharacterId)
                     return HousingResult.InvalidPermissions;
 
                 if (!textFilterManager.IsTextValid(housingCommunityRename.Name)

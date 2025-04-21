@@ -87,7 +87,7 @@ namespace NexusForever.WorldServer.Network
 
             if (Player != null && Player.LogoutManager.State == LogoutState.Finished)
             {
-                log.Trace($"Removed player {Player.CharacterId} from session {Id}.");
+                log.Trace($"Removed player {Player.Identity.CharacterId} from session {Id}.");
                 Player = null;
             }
         }

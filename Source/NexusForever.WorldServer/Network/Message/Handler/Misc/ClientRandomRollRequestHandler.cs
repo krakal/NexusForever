@@ -31,11 +31,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Misc
 
             session.EnqueueMessageEncrypted(new ServerRandomRollResponse
             {
-                TargetPlayerIdentity = new PlayerIdentity
-                {
-                    RealmId     = realmContext.RealmId,
-                    CharacterId = session.Player.CharacterId
-                },
+                TargetPlayerIdentity = session.Player.Identity,
                 MinRandom        = randomRoll.MinRandom,
                 MaxRandom        = randomRoll.MaxRandom,
                 RandomRollResult = Random.Shared.Next((int)randomRoll.MinRandom, (int)randomRoll.MaxRandom)

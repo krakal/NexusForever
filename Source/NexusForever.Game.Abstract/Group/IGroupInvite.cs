@@ -1,4 +1,5 @@
 ﻿using NexusForever.Game.Static.Group;
+using NexusForever.Network.World.Message.Model.Shared;
 
 namespace NexusForever.Game.Abstract.Group
 {
@@ -6,8 +7,8 @@ namespace NexusForever.Game.Abstract.Group
     {
         double ExpirationTime { get; set; }
         IGroup Group { get; }
-        ulong InvitedCharacterId { get; }
-        string InvitedCharacterName { get; }
+        PlayerIdentity InviteeIdentity { get; }
+        string InviteeName { get; }
         ulong InviteId { get; }
         IGroupMember Inviter { get; }
         GroupInviteType Type { get; }

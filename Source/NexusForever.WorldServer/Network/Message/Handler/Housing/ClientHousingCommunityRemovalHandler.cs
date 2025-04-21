@@ -44,7 +44,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Housing
             if (entrance == null)
                 throw new InvalidOperationException();
 
-            IResidenceChild child = community.Residence.GetChild(session.Player.CharacterId);
+            IResidenceChild child = community.Residence.GetChild(session.Player.Identity.CharacterId);
             if (child == null)
                 throw new InvalidOperationException();
 

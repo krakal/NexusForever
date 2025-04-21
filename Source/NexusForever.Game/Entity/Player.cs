@@ -84,7 +84,8 @@ namespace NexusForever.Game.Entity
 
         public IAccount Account { get; private set; }
 
-        public PlayerIdentity Identity { get; private set; }
+        public PlayerIdentity Identity { get ; private set; }
+        
         public string Name { get; private set; }
 
         public Sex Sex
@@ -276,8 +277,7 @@ namespace NexusForever.Game.Entity
             Session           = session;
 
             Account           = account;
-            Identity.RealmId  = RealmContext.Instance.RealmId;
-            Identity.CharacterId = model.Id;
+            Identity          = new PlayerIdentity(RealmContext.Instance.RealmId, model.Id); // Possibly should have RealmId as a property in the model
             Name              = model.Name;
             sex               = (Sex)model.Sex;
             race              = (Race)model.Race;

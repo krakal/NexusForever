@@ -10,7 +10,7 @@ namespace NexusForever.Game.Group
     public sealed class GroupManager : Singleton<GroupManager>, IGroupManager
     {
         private Dictionary<ulong, IGroup> groups = new Dictionary<ulong, IGroup>();
-        private Dictionary<ulong, IGroup> groupOwner = new Dictionary<ulong, IGroup>();
+        private Dictionary<PlayerIdentity, IGroup> groupOwner = new Dictionary<PlayerIdentity, IGroup>();
         private Dictionary<PlayerIdentity, List<IGroup>> groupMembers = new Dictionary<PlayerIdentity, List <IGroup>>();
 
         /// <summary>
@@ -19,12 +19,12 @@ namespace NexusForever.Game.Group
         public IGroup CreatePartyGroup(IPlayer leader)
         {
             // Player is already leader in a group
-            if (groupOwner.ContainsKey(leader.Identity.CharacterId))
+            if (groupOwner.ContainsKey(leader.Identity))
                 return null;
 
             IGroup group = Group.CreatePartyGroup(NextGroupId(), leader);
             groups.Add(group.Id, group);
-            groupOwner.Add(leader.Identity.CharacterId, group);
+            groupOwner.Add(leader.Identity, group);
 
             if (groupMembers.TryGetValue(leader.Identity, out List<IGroup> groupList))
             {
@@ -52,7 +52,7 @@ namespace NexusForever.Game.Group
                 return;
 
             groups.Remove(group.Id);
-            groupOwner.Remove(group.Leader.CharacterId);
+            groupOwner.Remove(group.Leader.Identity);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace NexusForever.Game.Group
         /// </summary>
         public IGroup GetGroupByLeader(IPlayer player)
         {
-            if (!groupOwner.TryGetValue(player.Identity.CharacterId, out var group))
+            if (!groupOwner.TryGetValue(player.Identity, out var group))
                 return null;
 
             return group;
@@ -93,7 +93,7 @@ namespace NexusForever.Game.Group
 
             foreach (IGroup group in groups.Values)
             {
-                IGroupMember membership = group.FindMember(new PlayerIdentity() { CharacterId = player.Identity.CharacterId, RealmId = RealmContext.Instance.RealmId });
+                IGroupMember membership = group.FindMember(player.Identity);
 
                 if (membership == null)
                     continue;
@@ -133,11 +133,7 @@ namespace NexusForever.Game.Group
                 player.AddToGroup(membership2);
                 player.Session.EnqueueMessageEncrypted(new ServerGroupJoin
                 {
-                    Player = new PlayerIdentity
-                    {
-                        CharacterId = player.Identity.CharacterId,
-                        RealmId = RealmContext.Instance.RealmId
-                    },
+                    Player = player.Identity,
                     GroupInfo = membership2.Group.Build()
                 });
             }
@@ -146,11 +142,7 @@ namespace NexusForever.Game.Group
             player.AddToGroup(membership);
             player.Session.EnqueueMessageEncrypted(new ServerGroupJoin
             {
-                Player = new PlayerIdentity
-                {
-                    CharacterId = player.Identity.CharacterId,
-                    RealmId = RealmContext.Instance.RealmId
-                },
+                Player = player.Identity,
                 GroupInfo = membership.Group.Build()
             });
         }

@@ -6,14 +6,14 @@ namespace NexusForever.Network.World.Message.Model
     [Message(GameMessageOpcode.ServerGroupInvited)]
     public class ServerGroupInvited : IWritable
     {
-        public ulong GroupId { get; set; }
+        public ulong InviteId { get; set; }
         public uint LeaderIndex { get; set; } 
         public uint InviterIndex { get; set; }
         public List<GroupMember> Members = new List<GroupMember>();
 
         public void Write(GamePacketWriter writer)
         {
-            writer.Write(GroupId);
+            writer.Write(InviteId);
             writer.Write(LeaderIndex);
             writer.Write(InviterIndex);
 

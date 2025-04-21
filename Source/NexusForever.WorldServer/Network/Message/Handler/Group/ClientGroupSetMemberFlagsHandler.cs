@@ -21,7 +21,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 return;
             }
 
-            group.UpdateMemberRole(session.Player.GroupMembership1, clientSetMemberFlags.TargetedPlayer, clientSetMemberFlags.ChangedFlag, clientSetMemberFlags.CurrentFlags.HasFlag(clientSetMemberFlags.ChangedFlag));
+            group.UpdateMemberRole(session.Player.GroupMembershipInstance, clientSetMemberFlags.TargetedPlayer, clientSetMemberFlags.ChangedFlag, clientSetMemberFlags.CurrentFlags.HasFlag(clientSetMemberFlags.ChangedFlag));
         }
     }
 }

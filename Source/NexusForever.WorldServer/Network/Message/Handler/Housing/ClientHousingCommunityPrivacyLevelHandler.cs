@@ -33,7 +33,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Housing
             if (community == null)
                 throw new InvalidPacketValueException();
 
-            if (!community.GetMember(session.Player.CharacterId).Rank.HasPermission(GuildRankPermission.ChangeCommunityRemodelOptions))
+            if (!community.GetMember(session.Player.Identity.CharacterId).Rank.HasPermission(GuildRankPermission.ChangeCommunityRemodelOptions))
                 throw new InvalidPacketValueException();
 
             if (housingCommunityPrivacyLevel.PrivacyLevel == CommunityPrivacyLevel.Public)

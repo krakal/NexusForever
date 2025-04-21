@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using NexusForever.Game.Abstract.Character;
 using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Character;
+using NexusForever.Network.World.Message.Model.Shared;
 using NexusForever.Shared;
 using NLog;
 
@@ -38,6 +39,14 @@ namespace NexusForever.Game.Entity
         public IPlayer GetPlayer(ulong characterId)
         {
             return players.TryGetValue(characterId, out IPlayer player) ? player : null;
+        }
+
+        /// <summary>
+        /// Returns <see cref="IPlayer"/> with supplied <see cref="PlayerIdentity">.
+        /// </summary>
+        public IPlayer GetPlayer(PlayerIdentity identity)
+        {
+            return players.TryGetValue(identity.CharacterId, out IPlayer player) ? player : null;
         }
 
         /// <summary>

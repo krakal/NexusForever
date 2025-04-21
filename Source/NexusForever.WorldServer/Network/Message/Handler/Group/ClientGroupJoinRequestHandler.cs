@@ -13,26 +13,28 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         /// </summary>
         public void HandleMessage(IWorldSession session, ClientGroupJoinRequest joinRequest)
         {
-            if (session.Player.GroupMembership1 != null) // player who did /join is already in a group. This has no effect.
+            IPlayer joinRequester = session.Player;
+            IPlayer targetedPlayer = PlayerManager.Instance.GetPlayer(joinRequest.Name);
+
+            if (joinRequester.GroupMembershipInstance != null) // player who did /join is already in a group. This has no effect.
                 return;
 
-            IPlayer targetedPlayer = PlayerManager.Instance.GetPlayer(joinRequest.Name);
             if (targetedPlayer == null)
                 return;
 
-            if (targetedPlayer.GroupMembership1 == null)
+            if (targetedPlayer.GroupMembershipInstance == null)
             {
                 // Player and Target are not part of a group - create one for them both so /join acts as /invite.
-                IGroup newGroup = GroupManager.Instance.CreateGroup(session.Player);
+                IGroup newGroup = GroupManager.Instance.CreatePartyGroup(session.Player);
                 newGroup.Invite(session.Player, targetedPlayer);
             }
             else
             {
-                IGroup group = targetedPlayer.GroupMembership1.Group;
-                if (targetedPlayer.GroupMembership1.IsPartyLeader)  // /Join was on the leader - so just do a std Join request.
+                IGroup group = targetedPlayer.GroupMembershipInstance.Group;
+                if (targetedPlayer.GroupMembershipInstance.IsPartyLeader)  // /Join was on the leader - so just do a std Join request.
                     group.HandleJoinRequest(session.Player);
                 else  //target player is not the leader of the group, so this acts as a referral
-                    group.ReferMember(session.Player.GroupMembership1, targetedPlayer);
+                    group.ReferMember(session.Player.GroupMembershipInstance, targetedPlayer);
             }
         }
     }

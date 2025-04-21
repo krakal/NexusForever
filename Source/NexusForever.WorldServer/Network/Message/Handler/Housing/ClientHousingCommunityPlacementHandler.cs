@@ -46,7 +46,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Housing
 
             if (residence.Parent != null)
             {
-                if (community.Residence.GetChild(session.Player.CharacterId) == null)
+                if (community.Residence.GetChild(session.Player.Identity.CharacterId) == null)
                     throw new InvalidPacketValueException();
 
                 // for residences on a community just remove the residence

@@ -456,11 +456,7 @@ namespace NexusForever.Game.Guild
                 {
                     RealmId        = RealmContext.Instance.RealmId,
                     GuildId        = Id,
-                    PlayerIdentity = new PlayerIdentity
-                    {
-                        RealmId     = RealmContext.Instance.RealmId,
-                        CharacterId = member.CharacterId
-                    },
+                    PlayerIdentity = new PlayerIdentity(RealmContext.Instance.RealmId, member.CharacterId),
                 });
             }
 

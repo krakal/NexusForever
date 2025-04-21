@@ -12,8 +12,7 @@ namespace NexusForever.Game.Abstract.Social
         bool GM { get; set; }
         bool Self { get; set; }
         bool AutoResponse { get; set; }
-        ulong FromCharacterId { get; set; }
-        ushort FromCharacterRealmId { get; set; }
+        PlayerIdentity FromIdentity { get; set; }
         string FromName { get; set; }
         string FromRealm { get; set; }
         ChatPresenceState PresenceState { get; set; }
