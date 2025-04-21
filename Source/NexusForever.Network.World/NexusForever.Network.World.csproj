@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NexusForever.Game.Static\NexusForever.Game.Static.csproj" />
+    <ProjectReference Include="..\NexusForever.ModelMigration\NexusForever.ModelMigration.csproj" />
     <ProjectReference Include="..\NexusForever.Network\NexusForever.Network.csproj" />
   </ItemGroup>
 

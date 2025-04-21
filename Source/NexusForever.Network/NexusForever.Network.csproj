@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NexusForever.Cryptography\NexusForever.Cryptography.csproj" />
+    <ProjectReference Include="..\NexusForever.ModelMigration\NexusForever.ModelMigration.csproj" />
     <ProjectReference Include="..\NexusForever.Shared\NexusForever.Shared.csproj" />
   </ItemGroup>
 
