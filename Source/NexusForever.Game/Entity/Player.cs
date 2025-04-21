@@ -731,7 +731,7 @@ namespace NexusForever.Game.Entity
                 InnateIndex = InnateIndex
             });
 
-            Session.EnqueueMessage(new ServerUpdatePhase());
+            Session.EnqueueMessageEncrypted(new ServerUpdatePhase());
 
             log.Trace($"Player {Name} took {(DateTime.UtcNow - start).TotalMilliseconds}ms to send packets after add to map.");
         }
