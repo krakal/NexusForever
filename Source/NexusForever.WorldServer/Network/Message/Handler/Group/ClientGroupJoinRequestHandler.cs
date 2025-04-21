@@ -16,13 +16,13 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             IPlayer joinRequester = session.Player;
             IPlayer targetedPlayer = PlayerManager.Instance.GetPlayer(joinRequest.Name);
 
-            if (joinRequester.GroupMembershipInstance != null) // player who did /join is already in a group. This has no effect.
+            if (joinRequester.GroupMembershipForeground != null) // player who did /join is already in a group. This has no effect.
                 return;
 
             if (targetedPlayer == null)
                 return;
 
-            if (targetedPlayer.GroupMembershipInstance == null)
+            if (targetedPlayer.GroupMembershipForeground == null)
             {
                 // Player and Target are not part of a group - create one for them both so /join acts as /invite.
                 IGroup newGroup = GroupManager.Instance.CreatePartyGroup(session.Player);
@@ -30,11 +30,11 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
             else
             {
-                IGroup group = targetedPlayer.GroupMembershipInstance.Group;
-                if (targetedPlayer.GroupMembershipInstance.IsPartyLeader)  // /Join was on the leader - so just do a std Join request.
+                IGroup group = targetedPlayer.GroupMembershipForeground.Group;
+                if (targetedPlayer.GroupMembershipForeground.IsPartyLeader)  // /Join was on the leader - so just do a std Join request.
                     group.HandleJoinRequest(session.Player);
                 else  //target player is not the leader of the group, so this acts as a referral
-                    group.ReferMember(session.Player.GroupMembershipInstance, targetedPlayer);
+                    group.ReferMember(session.Player.GroupMembershipForeground, targetedPlayer);
             }
         }
     }

@@ -819,11 +819,11 @@ namespace NexusForever.Game.Group
 
         private IGroupMember GetMembershipForGroupFromPlayer(IPlayer player)
         {
-            if (player.GroupMembershipInstance.Group != null)
-                return player.GroupMembershipInstance;
+            if (player.GroupMembershipForeground.Group != null)
+                return player.GroupMembershipForeground;
 
-            if (player.GroupMembershipParty.Group!= null)
-                return player.GroupMembershipParty;
+            if (player.GroupMembershipBackground.Group!= null)
+                return player.GroupMembershipBackground;
 
             throw new InvalidOperationException("Player is not a member of this group.");
         }

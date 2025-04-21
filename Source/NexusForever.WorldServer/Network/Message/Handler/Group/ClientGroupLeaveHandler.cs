@@ -34,7 +34,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
 
             //TODO: This may not be correct? I need to look into if i can leave my main group whilst part of an instance group.
-            group.RemoveMember(leaver.GroupMembershipInstance);
+            group.RemoveMember(leaver.GroupMembershipForeground);
         }
     }
 }

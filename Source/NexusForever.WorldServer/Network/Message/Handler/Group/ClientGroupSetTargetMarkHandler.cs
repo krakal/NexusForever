@@ -13,7 +13,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         public void HandleMessage(IWorldSession session, ClientGroupSetTargetMark clientMark)
         {
             // Players can only mark for their Active group.
-            ulong groupId = session.Player.GroupMembershipInstance.Group.Id;
+            ulong groupId = session.Player.GroupMembershipForeground.Group.Id;
             IGroup group = GroupManager.Instance.GetGroupById(groupId);
             if (group == null)
             {

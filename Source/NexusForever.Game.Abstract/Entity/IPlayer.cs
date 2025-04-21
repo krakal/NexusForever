@@ -66,8 +66,8 @@ namespace NexusForever.Game.Abstract.Entity
         /// </summary>
         bool IsLoading { get; set; }
 
-        IGroupMember GroupMembershipInstance { get; }
-        IGroupMember GroupMembershipParty { get; }
+        IGroupMember GroupMembershipForeground { get; }
+        IGroupMember GroupMembershipBackground { get; }
         IGroupInvite GroupInvite { get; set; }
 
         IInventory Inventory { get; }

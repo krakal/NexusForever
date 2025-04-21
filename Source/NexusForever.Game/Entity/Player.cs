@@ -207,8 +207,8 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public bool IsLoading { get; set; } = true;
 
-        public IGroupMember GroupMembershipInstance { get; private set; }
-        public IGroupMember GroupMembershipParty { get; private set; }
+        public IGroupMember GroupMembershipForeground { get; private set; }
+        public IGroupMember GroupMembershipBackground { get; private set; }
         public IGroupInvite GroupInvite { get; set; }
 
         public IInventory Inventory { get; private set; }
@@ -572,7 +572,7 @@ namespace NexusForever.Game.Entity
                 PvPFlag   = PvPFlag.Disabled,
 
                 // We use Group 1 as the "dominant group"
-                GroupId   = GroupMembershipInstance == null ? 0 : GroupMembershipInstance.Group.Id
+                GroupId   = GroupMembershipForeground == null ? 0 : GroupMembershipForeground.Group.Id
             };
         }
 
@@ -1330,13 +1330,13 @@ namespace NexusForever.Game.Entity
         /// <returns></returns>
         public void AddToGroup(IGroupMember membership)
         {
-            if (GroupMembershipParty != null)
+            if (GroupMembershipBackground != null)
                 throw new InvalidOperationException("Player cannot be a member of more than two groups.");
 
-            if (GroupMembershipInstance != null)
-                GroupMembershipParty = GroupMembershipInstance;
+            if (GroupMembershipForeground != null)
+                GroupMembershipBackground = GroupMembershipForeground;
 
-            GroupMembershipInstance = membership;
+            GroupMembershipForeground = membership;
             EnqueueToVisible(membership.BuildGroupAssociation());
         }
 
@@ -1346,24 +1346,24 @@ namespace NexusForever.Game.Entity
         /// <param name="member"></param>
         public void RemoveFromGroup(IGroupMember member)
         {
-            if (GroupMembershipParty != null && member.Group.Id == GroupMembershipParty.Group.Id)
+            if (GroupMembershipBackground != null && member.Group.Id == GroupMembershipBackground.Group.Id)
             {
                 // We are being removed from group 2
                 // No need to send a ServerEntityGroupAssociation packet, we already know we are a member of group 1 over this.
-                GroupMembershipParty = null;
+                GroupMembershipBackground = null;
             }
-            else if (member.Group.Id == GroupMembershipInstance.Group.Id)
+            else if (member.Group.Id == GroupMembershipForeground.Group.Id)
             {
                 // We are being removed from Group 1
-                if (GroupMembershipParty != null)
+                if (GroupMembershipBackground != null)
                 {
-                    GroupMembershipInstance = GroupMembershipParty;
-                    GroupMembershipParty = null;
+                    GroupMembershipForeground = GroupMembershipBackground;
+                    GroupMembershipBackground = null;
                     EnqueueToVisible(member.BuildGroupAssociation());
                 }
                 else
                 {
-                    GroupMembershipInstance = null;
+                    GroupMembershipForeground = null;
                     EnqueueToVisible(new ServerEntityGroupAssociation { UnitId = Guid, GroupId = 0 });
                 }
             }

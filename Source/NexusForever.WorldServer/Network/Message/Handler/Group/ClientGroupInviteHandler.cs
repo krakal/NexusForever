@@ -23,8 +23,8 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 return;
             }
 
-            // Check if targeted player is already grouped in an instance Group they cannot be re-invited, only instance finder can create an instance group.
-            if (invitee.GroupMembershipInstance != null)
+            // Check if targeted player is already grouped they cannot be re-invited, only instance finder can create an instance group that pushes existing foreground group to background.
+            if (invitee.GroupMembershipForeground != null)
             {
                 GroupHandler.SendGroupResult(session, GroupResult.Grouped, targetPlayerName: groupInvite.InviteeName);
                 return;
@@ -51,7 +51,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 return;
             }
 
-            if (inviter.GroupMembershipInstance == null && inviter.GroupMembershipParty == null)
+            if (inviter.GroupMembershipForeground == null && inviter.GroupMembershipBackground == null)
             {
                 // Inviter is not part of a group - lets create a new one and invite the new guy.
                 IGroup newGroup = GroupManager.Instance.CreatePartyGroup(leader: inviter);
@@ -64,15 +64,15 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 IGroupMember inviterMember = null;
 
                 // Priority goes to Instance group if the inviter is in one.
-                if (inviter.GroupMembershipInstance != null)
+                if (inviter.GroupMembershipForeground != null)
                 {
-                    group = inviter.GroupMembershipInstance.Group;
-                    inviterMember = inviter.GroupMembershipInstance;
+                    group = inviter.GroupMembershipForeground.Group;
+                    inviterMember = inviter.GroupMembershipForeground;
                 }
                 else
                 {
-                    group = inviter.GroupMembershipParty.Group;
-                    inviterMember = inviter.GroupMembershipParty;
+                    group = inviter.GroupMembershipBackground.Group;
+                    inviterMember = inviter.GroupMembershipBackground;
                 }
                 
                 if (group.IsFull)
