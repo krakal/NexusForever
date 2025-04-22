@@ -83,11 +83,12 @@ namespace NexusForever.Game.Group
         /// <summary>
         /// Invite the targeted <see cref="Player"/>
         /// </summary>
-        public void Invite(IPlayer inviter, IPlayer invitedPlayer)
+        public void Invite(IPlayer inviter, IPlayer invitee)
         {
-            SendGroupResult(inviter.Session, GroupResult.Sent, Id, invitedPlayer.Name);
+            SendGroupResult(inviter.Session, GroupResult.Sent, Id, invitee.Name);
 
-            IGroupInvite invite = CreateInvite(GetMembershipForGroupFromPlayer(inviter), invitedPlayer, GroupInviteType.Invite);
+            // Can only invite to foreground group
+            IGroupInvite invite = CreateInvite(inviter.GroupMembershipForeground, invitee, GroupInviteType.Invite);
             SendInvite(invite);
         }
 
@@ -817,7 +818,9 @@ namespace NexusForever.Game.Group
         }
 
         private IGroupMember GetMembershipForGroupFromPlayer(IPlayer player)
-        {
+        {   
+            // Should only ever return Foreground group as Background has limited interactions
+            // and is pushed back to Foreground group when the Foreground group is removed.
             if (player.GroupMembershipForeground.Group != null)
                 return player.GroupMembershipForeground;
 

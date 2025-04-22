@@ -13,15 +13,14 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         public void HandleMessage(IWorldSession session, ClientGroupSetTargetMark clientMark)
         {
             // Players can only mark for their Active group.
-            ulong groupId = session.Player.GroupMembershipForeground.Group.Id;
-            IGroup group = GroupManager.Instance.GetGroupById(groupId);
+            IGroup group = session.Player.GroupMembershipForeground.Group;
             if (group == null)
             {
-                GroupHandler.SendGroupResult(session, GroupResult.GroupNotFound, groupId, session.Player.Name);
+                GroupHandler.SendGroupResult(session, GroupResult.GroupNotFound, group.Id, session.Player.Name);
                 return;
             }
 
-            GroupHandler.AssertPermission(session, groupId, GroupMemberInfoFlags.CanMark);
+            GroupHandler.AssertPermission(session, group.Id, GroupMemberInfoFlags.CanMark);
             group.MarkUnit(clientMark.UnitId, clientMark.TargetMarkerId);
         }
     }

@@ -24,13 +24,15 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
 
             // Check if targeted player is already grouped they cannot be re-invited, only instance finder can create an instance group that pushes existing foreground group to background.
-            if (invitee.GroupMembershipForeground != null)
+            // Though it should never be possible to have only a Background group, checking both to be sure there are no edge cases.
+            if (invitee.GroupMembershipForeground != null || invitee.GroupMembershipBackground != null)
             {
                 GroupHandler.SendGroupResult(session, GroupResult.Grouped, targetPlayerName: groupInvite.InviteeName);
                 return;
             }
 
             // Check if inviter faction is same as invited faction.
+            // Make cross faction groups possible as an option?
             if (invitee.Faction1 != session.Player.Faction1)
             {
                 GroupHandler.SendGroupResult(session, GroupResult.WrongFaction, targetPlayerName: groupInvite.InviteeName);
@@ -43,6 +45,8 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
                 GroupHandler.SendGroupResult(session, GroupResult.Pending, targetPlayerName: groupInvite.InviteeName);
                 return;
             }
+
+            // TODO: Add case for server controlled unit
 
             // Check if the inviter is not inviting himself (pleb)
             if (invitee.Session == session)
@@ -60,21 +64,10 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
             }
             else
             {
-                IGroup group = null;
-                IGroupMember inviterMember = null;
+                // Can only invite to the Foreground group
+                IGroup group = inviter.GroupMembershipForeground.Group;
+                IGroupMember inviterMember = inviter.GroupMembershipForeground;
 
-                // Priority goes to Instance group if the inviter is in one.
-                if (inviter.GroupMembershipForeground != null)
-                {
-                    group = inviter.GroupMembershipForeground.Group;
-                    inviterMember = inviter.GroupMembershipForeground;
-                }
-                else
-                {
-                    group = inviter.GroupMembershipBackground.Group;
-                    inviterMember = inviter.GroupMembershipBackground;
-                }
-                
                 if (group.IsFull)
                 {
                     GroupHandler.SendGroupResult(session, GroupResult.Full, group.Id, groupInvite.InviteeName);

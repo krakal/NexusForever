@@ -10,20 +10,13 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         public void HandleMessage(IWorldSession session, ClientZoneMapPing clientPing)
         {
             IPlayer pingMaker = session.Player;
-            IGroup group = null;
-            
-            if (pingMaker.GroupMembershipForeground != null)
-            {
-                group = pingMaker.GroupMembershipForeground.Group;
-            }
-            else if (pingMaker.GroupMembershipBackground != null)
-            {
-                group = pingMaker.GroupMembershipBackground.Group;
-            }
-            else
+
+            if (pingMaker.GroupMembershipForeground == null)
             {
                 return;
             }
+
+            IGroup group = pingMaker.GroupMembershipForeground.Group;
 
             group.BroadcastPacket(new ServerZoneMapPing
             {

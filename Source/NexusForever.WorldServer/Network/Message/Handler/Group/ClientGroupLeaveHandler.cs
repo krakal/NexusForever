@@ -15,8 +15,6 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Group
         {
             IPlayer leaver = session.Player;
 
-            GroupHandler.AssertGroupId(session, leave.GroupId);
-
             IGroup group = GroupManager.Instance.GetGroupById(leave.GroupId);
             if (group == null)
             {
