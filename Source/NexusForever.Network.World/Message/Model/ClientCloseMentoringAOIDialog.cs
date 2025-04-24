@@ -7,7 +7,7 @@ namespace NexusForever.Network.World.Message.Model
     public class ClientCloseMentoringAOIDialog : IReadable
     {
         public ulong GroupId { get; private set; }
-        public PlayerIdentity Identity { get; private set; } = new PlayerIdentity();
+        public PlayerIdentity Identity { get; private set; } = new PlayerIdentity(); // Identity of player that closed the dialog
 
         public void Read(GamePacketReader reader)
         {

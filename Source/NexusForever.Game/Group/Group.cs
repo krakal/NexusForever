@@ -23,10 +23,10 @@ namespace NexusForever.Game.Group
 
         private IGroupMarkerInfo markerInfo;
 
-        private LootRule lootRule = LootRule.NeedBeforeGreed;
-        private LootRule lootRuleThreshold = LootRule.RoundRobin;
-        private HarvestLootRule lootRuleHarvest = HarvestLootRule.FirstTagger;
-        private LootThreshold lootThreshold = LootThreshold.Good;
+        private LootRule _lootRule = LootRule.NeedBeforeGreed;
+        private LootRule _lootRuleThreshold = LootRule.RoundRobin;
+        private HarvestLootRule _lootRuleHarvest = HarvestLootRule.FirstTagger;
+        private LootThreshold _lootThreshold = LootThreshold.Good;
 
         /// <summary>
         /// Id for the current <see cref="Group"/>
@@ -556,31 +556,19 @@ namespace NexusForever.Game.Group
         /// </summary>
         public void Disband()
         {
-
-            foreach (var memberToRemove in members)
-            {
-                BroadcastPacket(new ServerGroupRemove
-                {
-                    GroupId = Id,
-                    Reason = RemoveReason.Disband,
-                    TargetPlayer = memberToRemove.Identity
-                });
-            }
-
-            // Group broadcast must come before removing the members!
-            BroadcastPacket(new ServerGroupLeave
-            {
-                GroupId = Id,
-                Reason = RemoveReason.Disband
-            });
-
             foreach (IGroupMember member in members)
             {
-                IPlayer player = PlayerManager.Instance.GetPlayer(member.Identity);
-                if (player == null)
+                IPlayer memberPlayer = PlayerManager.Instance.GetPlayer(member.Identity);
+                if (memberPlayer == null)
                     continue;
 
-                player.RemoveFromGroup(member);
+                memberPlayer.Session.EnqueueMessageEncrypted(new ServerGroupLeave
+                {
+                    GroupId = Id,
+                    Reason = RemoveReason.Disband
+                });
+
+                memberPlayer.RemoveFromGroup(member);
             }
             GroupManager.Instance.RemoveGroup(this);
         }
@@ -719,15 +707,15 @@ namespace NexusForever.Game.Group
         /// </summary>
         public void UpdateLootRules(LootRule lootRulesUnderThreshold, LootRule lootRulesThresholdAndOver, LootThreshold lootThreshold, HarvestLootRule harvestLootRule)
         {
-            lootRule = lootRulesUnderThreshold;
-            lootRuleThreshold = lootRulesThresholdAndOver;
-            this.lootThreshold = lootThreshold;
-            lootRuleHarvest = harvestLootRule;
+            _lootRule = lootRulesUnderThreshold;
+            _lootRuleThreshold = lootRulesThresholdAndOver;
+            _lootThreshold = lootThreshold;
+            _lootRuleHarvest = harvestLootRule;
 
             BroadcastPacket(new ServerGroupLootRulesChanged
             {
                 GroupId = Id,
-                Unused = 0, // maybe characterId?
+                Unused = 0, // Unused
                 LootRulesUnderThreshold = lootRulesUnderThreshold,
                 LootRulesThresholdAndOver = lootRulesThresholdAndOver,
                 LootThreshold = lootThreshold,
@@ -806,10 +794,10 @@ namespace NexusForever.Game.Group
                 GroupId = Id,
                 Flags = Flags,
                 Leader = Leader.Identity,
-                LootRule = lootRule,
-                LootThresholdRule = lootRuleThreshold,
-                LootRuleHarvest = lootRuleHarvest,
-                LootThresholdQuality = lootThreshold,
+                LootRule = _lootRule,
+                LootThresholdRule = _lootRuleThreshold,
+                LootRuleHarvest = _lootRuleHarvest,
+                LootThresholdQuality = _lootThreshold,
                 MaxGroupSize = MaxGroupSize,
                 MemberInfos = BuildMembersInfo(),
                 RealmId = RealmContext.Instance.RealmId,
