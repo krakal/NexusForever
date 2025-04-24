@@ -38,7 +38,7 @@ namespace NexusForever.Network.World.Message.Model.Shared
         public byte Level { get; set; }
         public byte EffectiveLevel { get; set; }
         public Game.Static.Entity.Path Path { get; set; }
-        public uint Unknown4 { get; set; }
+        public uint MatchingEligibilityFlags { get; set; }
         public ushort GroupMemberId { get; set; }
 
         public UnknownStruct0[] SomeStatList = new UnknownStruct0[5];
@@ -79,7 +79,7 @@ namespace NexusForever.Network.World.Message.Model.Shared
             writer.Write(Level, 7u);
             writer.Write(EffectiveLevel, 7u);
             writer.Write(Path, 3u);
-            writer.Write(Unknown4, 17u);
+            writer.Write(MatchingEligibilityFlags, 17u);
             writer.Write(GroupMemberId);
 
             for (var i = 0; i < 5; ++i)

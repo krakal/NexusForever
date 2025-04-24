@@ -556,31 +556,19 @@ namespace NexusForever.Game.Group
         /// </summary>
         public void Disband()
         {
-
-            foreach (var memberToRemove in members)
-            {
-                BroadcastPacket(new ServerGroupRemove
-                {
-                    GroupId = Id,
-                    Reason = RemoveReason.Disband,
-                    TargetPlayer = memberToRemove.Identity
-                });
-            }
-
-            // Group broadcast must come before removing the members!
-            BroadcastPacket(new ServerGroupLeave
-            {
-                GroupId = Id,
-                Reason = RemoveReason.Disband
-            });
-
             foreach (IGroupMember member in members)
             {
-                IPlayer player = PlayerManager.Instance.GetPlayer(member.Identity);
-                if (player == null)
+                IPlayer memberPlayer = PlayerManager.Instance.GetPlayer(member.Identity);
+                if (memberPlayer == null)
                     continue;
 
-                player.RemoveFromGroup(member);
+                memberPlayer.Session.EnqueueMessageEncrypted(new ServerGroupLeave
+                {
+                    GroupId = Id,
+                    Reason = RemoveReason.Disband
+                });
+
+                memberPlayer.RemoveFromGroup(member);
             }
             GroupManager.Instance.RemoveGroup(this);
         }
@@ -719,15 +707,15 @@ namespace NexusForever.Game.Group
         /// </summary>
         public void UpdateLootRules(LootRule lootRulesUnderThreshold, LootRule lootRulesThresholdAndOver, LootThreshold lootThreshold, HarvestLootRule harvestLootRule)
         {
-            lootRule = lootRulesUnderThreshold;
-            lootRuleThreshold = lootRulesThresholdAndOver;
+            this.lootRule = lootRulesUnderThreshold;
+            this.lootRuleThreshold = lootRulesThresholdAndOver;
             this.lootThreshold = lootThreshold;
-            lootRuleHarvest = harvestLootRule;
+            this.lootRuleHarvest = harvestLootRule;
 
             BroadcastPacket(new ServerGroupLootRulesChanged
             {
                 GroupId = Id,
-                Unused = 0, // maybe characterId?
+                Unused = 0, // Unused
                 LootRulesUnderThreshold = lootRulesUnderThreshold,
                 LootRulesThresholdAndOver = lootRulesThresholdAndOver,
                 LootThreshold = lootThreshold,

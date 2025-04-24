@@ -4,6 +4,7 @@ using NexusForever.Game.Entity;
 using NexusForever.Game.Static.Group;
 using NexusForever.Network.World.Message.Model;
 using NexusForever.Network.World.Message.Model.Shared;
+using System.ComponentModel;
 using NetworkGroupMember = NexusForever.Network.World.Message.Model.Shared.GroupMember;
 
 namespace NexusForever.Game.Group
@@ -12,7 +13,9 @@ namespace NexusForever.Game.Group
     {
         public ulong Id { get; }
         public IGroup Group { get; }
-        public PlayerIdentity Identity { get; set; }
+        public PlayerIdentity Identity { get; }
+        public PlayerIdentity Mentee { get; private set; }
+        public List<PlayerIdentity> Mentors { get; private set; }
         public ushort ZoneId { get; set; }
         public uint GroupIndex { get { return Group.GetMemberIndex(this); } }
 
@@ -177,6 +180,17 @@ namespace NexusForever.Game.Group
                 InterruptArmorMax = (ushort)player.InterruptArmorMax,
                 Path = player.Path
             };
+        }
+
+        public bool SetMentee(PlayerIdentity mentee)
+        {
+            if (Mentee != null)
+            {
+
+                return false;
+            }
+
+            return true;
         }
     }
 }
