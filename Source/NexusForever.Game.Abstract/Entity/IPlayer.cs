@@ -21,7 +21,7 @@ namespace NexusForever.Game.Abstract.Entity
     public interface IPlayer : IUnitEntity, IDatabaseAuth, IDatabaseCharacter
     {
         IAccount Account { get; }
-
+        public PlayerIdentity Identity { get; }
         public ulong CharacterId { get; }
         public string Name { get; }
         Sex Sex { get; set; }

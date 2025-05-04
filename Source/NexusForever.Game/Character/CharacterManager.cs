@@ -32,8 +32,8 @@ namespace NexusForever.Game.Character
         private ImmutableList<IPropertyModifier> characterBaseProperties;
         private ImmutableDictionary<Class, ImmutableList<IPropertyModifier>> characterClassBaseProperties;
 
-        private readonly Dictionary<ulong, ICharacter> characters = new();
-        private readonly Dictionary<string, ulong> characterNameToId = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<PlayerIdentity, ICharacter> characters = new();
+        private readonly Dictionary<string, PlayerIdentity> characterNameToId = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Called to Initialise the <see cref="CharacterManager"/> at server start
@@ -124,33 +124,61 @@ namespace NexusForever.Game.Character
 
         public void AddCharacter(CharacterModel character)
         {
-            AddCharacter(character.Id, new Character(character));
+            AddCharacter(new PlayerIdentity
+            {
+                RealmId = RealmContext.Instance.RealmId, 
+                CharacterId = character.Id
+            }, 
+            new Character(character));
         }
 
         /// <summary>
         /// Add <see cref="ICharacter"/> to the cache with associated ID.
         /// </summary>
-        private void AddCharacter(ulong characterId, ICharacter character)
+        private void AddCharacter(PlayerIdentity identity, ICharacter character)
         {
-            characters.TryAdd(characterId, character);
-            characterNameToId.Add(character.Name, characterId);
+            characters.TryAdd(identity, character);
+            characterNameToId.Add(character.Name, identity);
         }
 
         /// <summary>
         /// Used to delete a <see cref="ICharacter"/> from the cache when the <see cref="CharacterModel"/> is deleted.
         /// </summary>
-        public void DeleteCharacter(ulong id, string name)
+        public void DeleteCharacter(PlayerIdentity identity, string name)
         {
-            if (!characters.ContainsKey(id))
-                throw new ArgumentNullException(nameof(id));
+            if (!characters.ContainsKey(identity))
+                throw new ArgumentNullException(nameof(identity));
 
-            characters.Remove(id, out ICharacter character);
+            characters.Remove(identity, out ICharacter character);
             if (character == null)
                 throw new ArgumentNullException();
 
             characterNameToId.Remove(name);
 
-            log.Trace($"Removed character {character.Name} (ID: {id}) from the cache due to player delete.");
+            log.Trace($"Removed character {character.Name} (ID: {identity.RealmId}:{identity.CharacterId}) from the cache due to player delete.");
+        }
+
+        /// <summary>
+        /// Used to delete a <see cref="ICharacter"/> from the cache when the <see cref="CharacterModel"/> is deleted.
+        /// </summary>
+        public void DeleteCharacter(ulong characterId, string name)
+        {
+            PlayerIdentity identity = new PlayerIdentity
+            {
+                RealmId = RealmContext.Instance.RealmId, 
+                CharacterId = characterId
+            };
+
+            if (!characters.ContainsKey(identity))
+                throw new ArgumentNullException(nameof(identity));
+
+            characters.Remove(identity, out ICharacter character);
+            if (character == null)
+                throw new ArgumentNullException();
+
+            characterNameToId.Remove(name);
+
+            log.Trace($"Removed character {character.Name} (ID: {identity.RealmId}:{identity.CharacterId}) from the cache due to player delete.");
         }
 
         /// <summary>
@@ -158,7 +186,15 @@ namespace NexusForever.Game.Character
         /// </summary>
         public bool IsCharacter(string name)
         {
-            return characterNameToId.TryGetValue(name, out ulong value);
+            return characterNameToId.TryGetValue(name, out PlayerIdentity identity);
+        }
+
+        /// <summary>
+        /// Returns the identity of a player with the name passed in.
+        /// </summary>
+        public PlayerIdentity? GetPlayerIdentityByName(string name)
+        {
+            return characterNameToId.TryGetValue(name, out PlayerIdentity identity) ? identity : null;
         }
 
         /// <summary>
@@ -166,7 +202,15 @@ namespace NexusForever.Game.Character
         /// </summary>
         public ulong? GetCharacterIdByName(string name)
         {
-            return characterNameToId.TryGetValue(name, out ulong characterId) ? characterId : 0;
+            return characterNameToId.TryGetValue(name, out PlayerIdentity identity) ? identity.CharacterId : 0;
+        }
+
+        /// <summary>
+        /// Returns an <see cref="ICharacter"/> instance that matches the passed identity, should one exist.
+        /// </summary>
+        public ICharacter GetCharacter(PlayerIdentity identity)
+        {
+            return characters.TryGetValue(identity, out ICharacter characterInfo) ? characterInfo : null;
         }
 
         /// <summary>
@@ -174,7 +218,12 @@ namespace NexusForever.Game.Character
         /// </summary>
         public ICharacter GetCharacter(ulong characterId)
         {
-            return characters.TryGetValue(characterId, out ICharacter characterInfo) ? characterInfo : null;
+            return characters.TryGetValue(new PlayerIdentity
+            { 
+                RealmId = RealmContext.Instance.RealmId,
+                CharacterId = characterId 
+            }, 
+            out ICharacter characterInfo) ? characterInfo : null;
         }
 
         /// <summary>
@@ -182,7 +231,7 @@ namespace NexusForever.Game.Character
         /// </summary>
         public ICharacter GetCharacter(string name)
         {
-            return characterNameToId.TryGetValue(name, out ulong characterId) ? GetCharacter(characterId) : null;
+            return characterNameToId.TryGetValue(name, out PlayerIdentity identity) ? GetCharacter(identity) : null;
         }
 
         /// <summary>

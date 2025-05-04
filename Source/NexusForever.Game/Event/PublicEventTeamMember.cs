@@ -96,11 +96,7 @@ namespace NexusForever.Game.Event
             return new PublicEventParticipantStats
             {
                 UnitId = player.Guid,
-                Player = new TargetPlayerIdentity
-                {
-                    CharacterId = player.CharacterId,
-                    RealmId     = realmContext.RealmId
-                },
+                Player = (MessagePlayerIdentity)player.Identity,
                 Class = @class,
                 Path  = path,
                 Stats = BuildStats()

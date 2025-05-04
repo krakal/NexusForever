@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using NexusForever.Game.Abstract.Character;
 using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Character;
+using NexusForever.Game.Static.Entity;
 using NexusForever.Shared;
 using NLog;
 
@@ -12,14 +13,14 @@ namespace NexusForever.Game.Entity
     {
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
-        private readonly ConcurrentDictionary<ulong, IPlayer> players = new();
+        private readonly ConcurrentDictionary<PlayerIdentity, IPlayer> players = new();
 
         /// <summary>
         /// Add new <see cref="IPlayer"/>.
         /// </summary>
         public void AddPlayer(IPlayer player)
         {
-            players.TryAdd(player.CharacterId, player);
+            players.TryAdd(player.Identity, player);
             log.Trace($"Added player {player.CharacterId}.");
         }
 
@@ -28,16 +29,29 @@ namespace NexusForever.Game.Entity
         /// </summary>
         public void RemovePlayer(IPlayer player)
         {
-            players.TryRemove(player.CharacterId, out _);
+            players.TryRemove(player.Identity, out _);
             log.Trace($"Removed player {player.CharacterId}.");
         }
 
         /// <summary>
-        /// Returns <see cref="IPlayer"/> with supplied character id.
+        /// Returns <see cref="IPlayer"/> with supplied characterId.
         /// </summary>
         public IPlayer GetPlayer(ulong characterId)
         {
-            return players.TryGetValue(characterId, out IPlayer player) ? player : null;
+            PlayerIdentity identity = new PlayerIdentity
+            {
+                RealmId = RealmContext.Instance.RealmId, 
+                CharacterId = characterId
+            };
+            return players.TryGetValue(identity, out IPlayer player) ? player : null;
+        }
+
+        /// <summary>
+        /// Returns <see cref="IPlayer"/> with supplied character identity.
+        /// </summary>
+        public IPlayer GetPlayer(PlayerIdentity identity)
+        {
+            return players.TryGetValue(identity, out IPlayer player) ? player : null;
         }
 
         /// <summary>
@@ -49,7 +63,7 @@ namespace NexusForever.Game.Entity
             if (character == null)
                 return null;
 
-            return GetPlayer(character.CharacterId);
+            return GetPlayer(character.Identity);
         }
 
         public IEnumerator<IPlayer> GetEnumerator()

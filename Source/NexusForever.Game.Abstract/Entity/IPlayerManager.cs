@@ -1,4 +1,6 @@
-﻿namespace NexusForever.Game.Abstract.Entity
+﻿using NexusForever.Game.Static.Entity;
+
+namespace NexusForever.Game.Abstract.Entity
 {
     public interface IPlayerManager : IEnumerable<IPlayer>
     {
@@ -13,7 +15,12 @@
         void RemovePlayer(IPlayer player);
 
         /// <summary>
-        /// Returns <see cref="IPlayer"/> with supplied character id.
+        /// Returns <see cref="IPlayer"/> with supplied character identity.
+        /// </summary>
+        IPlayer GetPlayer(PlayerIdentity identity);
+
+        /// <summary>
+        /// Returns <see cref="IPlayer"/> with supplied character id, assumes RealmId is this realm.
         /// </summary>
         IPlayer GetPlayer(ulong characterId);
 

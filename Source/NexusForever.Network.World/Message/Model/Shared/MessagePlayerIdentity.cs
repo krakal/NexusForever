@@ -1,12 +1,10 @@
-﻿using NexusForever.Network.Message;
+﻿using NexusForever.Game.Static.Entity;
+using NexusForever.Network.Message;
 
 namespace NexusForever.Network.World.Message.Model.Shared
 {
-    public class TargetPlayerIdentity : IReadable, IWritable
+    public class MessagePlayerIdentity : PlayerIdentity, IReadable, IWritable
     {
-        public ushort RealmId { get; set; }
-        public ulong CharacterId { get; set; }
-
         public void Read(GamePacketReader reader)
         {
             RealmId     = reader.ReadUShort(14u);

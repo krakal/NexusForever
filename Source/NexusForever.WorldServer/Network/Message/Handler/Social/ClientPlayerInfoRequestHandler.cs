@@ -39,11 +39,7 @@ namespace NexusForever.WorldServer.Network.Message.Handler.Social
                 BaseData = new ServerPlayerInfoFullResponse.Base
                 {
                     ResultCode = 0,
-                    Identity = new TargetPlayerIdentity
-                    {
-                        RealmId = realmContext.RealmId,
-                        CharacterId = character.CharacterId
-                    },
+                    Identity = (MessagePlayerIdentity)character.Identity,
                     Name = character.Name,
                     Faction = character.Faction1
                 },

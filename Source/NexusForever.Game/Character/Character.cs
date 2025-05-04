@@ -1,7 +1,9 @@
 using NexusForever.Database.Character.Model;
 using NexusForever.Game.Abstract.Character;
+
 using NexusForever.Game.Static.Entity;
 using NexusForever.Game.Static.Reputation;
+using static NexusForever.Network.World.Message.Model.ServerCharacterList;
 using Path = NexusForever.Game.Static.Entity.Path;
 
 namespace NexusForever.Game.Character
@@ -9,7 +11,8 @@ namespace NexusForever.Game.Character
     public class Character : ICharacter
     {
         public uint AccountId { get; }
-        public ulong CharacterId { get; }
+        public PlayerIdentity Identity { get; }
+        public ulong CharacterId => Identity.CharacterId;
         public string Name { get; }
         public Sex Sex { get; }
         public Race Race { get; }
@@ -23,7 +26,11 @@ namespace NexusForever.Game.Character
         public Character(CharacterModel model)
         {
             AccountId   = model.AccountId;
-            CharacterId = model.Id;
+            Identity    = new PlayerIdentity 
+            { 
+                RealmId = RealmContext.Instance.RealmId, 
+                CharacterId = model.Id 
+            };
             Name        = model.Name;
             Sex         = (Sex)model.Sex;
             Race        = (Race)model.Race;

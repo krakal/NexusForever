@@ -81,7 +81,10 @@ namespace NexusForever.Game.Entity
 
         public IAccount Account { get; private set; }
 
-        public ulong CharacterId { get; private set; }
+        public PlayerIdentity Identity { get; private set; }
+
+        public ulong CharacterId => Identity.CharacterId;
+
         public string Name { get; private set; }
 
         public Sex Sex
@@ -265,11 +268,14 @@ namespace NexusForever.Game.Entity
         public void Initialise(IGameSession session, IAccount account, CharacterModel model)
         {
             ActivationRange   = BaseMap.DefaultVisionRange;
-
             Session           = session;
 
             Account           = account;
-            CharacterId       = model.Id;
+            Identity          = new PlayerIdentity 
+            { 
+                RealmId = RealmContext.Instance.RealmId, 
+                CharacterId = model.Id 
+            };
             Name              = model.Name;
             sex               = (Sex)model.Sex;
             race              = (Race)model.Race;
@@ -830,19 +836,19 @@ namespace NexusForever.Game.Entity
 
         private void Cleanup()
         {
-            log.Trace($"Cleanup for character {Name}({CharacterId})...");
+            log.Trace($"Cleanup for character {Name}({Identity.RealmId}:{Identity.CharacterId})...");
 
             PlayerManager.Instance.RemovePlayer(this);
             CleanupManager.Instance.AddPlayer(this);
 
-            log.Trace($"Waiting to cleanup character {Name}({CharacterId})...");
+            log.Trace($"Waiting to cleanup character {Name}({Identity.RealmId}:{Identity.CharacterId})...");
 
             Session.Events.EnqueueEvent(new TimeoutPredicateEvent(TimeSpan.FromSeconds(15), CanCleanup,
                 () =>
             {
                 try
                 {
-                    log.Trace($"Cleanup for character {Name}({CharacterId}) has started...");
+                    log.Trace($"Cleanup for character {Name}({Identity.RealmId}:{Identity.CharacterId}) has started...");
 
                     Save(() =>
                     {
@@ -855,7 +861,7 @@ namespace NexusForever.Game.Entity
                 finally
                 {
                     CleanupManager.Instance.RemovePlayer(this);
-                    log.Trace($"Cleanup for character {Name}({CharacterId}) has completed.");
+                    log.Trace($"Cleanup for character {Name}({Identity.RealmId}:{Identity.CharacterId}) has completed.");
 
                     LogoutManager.State = LogoutState.Finished;
                 }
@@ -966,7 +972,7 @@ namespace NexusForever.Game.Entity
             SetControl(null);
 
             MapManager.Instance.AddToMap(this, mapPosition);
-            log.Trace($"Teleporting {Name}({CharacterId}) to map: {mapPosition.Info.Entry.Id}, instance: {mapPosition.Info.MapLock?.InstanceId ?? null}.");
+            log.Trace($"Teleporting {Name}({Identity.RealmId}:{Identity.CharacterId}) to map: {mapPosition.Info.Entry.Id}, instance: {mapPosition.Info.MapLock?.InstanceId ?? null}.");
         }
 
         /// <summary>
@@ -981,7 +987,7 @@ namespace NexusForever.Game.Entity
 
                 SetControl(this);
 
-                log.Trace($"Error {error} occured during teleport for {Name}({CharacterId})!");
+                log.Trace($"Error {error} occured during teleport for {Name}({Identity.RealmId}:{Identity.CharacterId})!");
             }
             else
             {
@@ -992,7 +998,7 @@ namespace NexusForever.Game.Entity
                     Reason = ForceKickReason.WorldDisconnect
                 });
 
-                log.Trace($"Error {error} occured during teleport for {Name}({CharacterId}), client will be disconnected!");
+                log.Trace($"Error {error} occured during teleport for {Name}({Identity.RealmId}:{Identity.CharacterId}), client will be disconnected!");
             }
         }
 

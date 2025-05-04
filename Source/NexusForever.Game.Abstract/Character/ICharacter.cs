@@ -7,6 +7,7 @@ namespace NexusForever.Game.Abstract.Character
     public interface ICharacter
     {
         uint AccountId { get; }
+        PlayerIdentity Identity { get; }
         ulong CharacterId { get; }
         string Name { get; }
         Sex Sex { get; }
