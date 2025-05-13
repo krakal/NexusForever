@@ -2,22 +2,8 @@ using NexusForever.Network.Message;
 
 namespace NexusForever.Network.World.Message.Model.Shared
 {
-    public class Binding : IReadable, IWritable
+    public class Binding : Game.Abstract.General.Binding, IReadable, IWritable
     {
-        public ushort InputActionId { get; set; }
-        public uint DeviceEnum00 { get; set; }
-        public uint DeviceEnum01 { get; set; }
-        public uint DeviceEnum02 { get; set; }
-        public uint Code00 { get; set; }
-        public uint Code01 { get; set; }
-        public uint Code02 { get; set; }
-        public uint MetaKeys00 { get; set; }
-        public uint MetaKeys01 { get; set; }
-        public uint MetaKeys02 { get; set; }
-        public uint EventTypeEnum00 { get; set; }
-        public uint EventTypeEnum01 { get; set; }
-        public uint EventTypeEnum02 { get; set; }
-
         public void Read(GamePacketReader reader)
         {
             InputActionId   = reader.ReadUShort(14u);

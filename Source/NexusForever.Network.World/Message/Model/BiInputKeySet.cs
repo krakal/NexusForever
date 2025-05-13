@@ -4,11 +4,8 @@ using NexusForever.Network.World.Message.Model.Shared;
 namespace NexusForever.Network.World.Message.Model
 {
     [Message(GameMessageOpcode.BiInputKeySet)]
-    public class BiInputKeySet : IReadable, IWritable
+    public class BiInputKeySet : Game.Abstract.General.BiInputKeySet, IReadable, IWritable
     {
-        public List<Binding> Bindings { get; set; } = new();
-        public ulong CharacterId { get; set; }
-
         public void Read(GamePacketReader reader)
         {
             uint count = reader.ReadUInt();
@@ -25,7 +22,7 @@ namespace NexusForever.Network.World.Message.Model
         public void Write(GamePacketWriter writer)
         {
             writer.Write(Bindings.Count);
-            Bindings.ForEach(b => b.Write(writer));
+            Bindings.ForEach(b => ((Binding)b).Write(writer));
             writer.Write(CharacterId);
         }
     }

@@ -1,8 +1,8 @@
 ﻿using NexusForever.Database.Character;
+using NexusForever.Game.Abstract.General;
 using NexusForever.Game.Static.Entity;
+using NexusForever.Game.Static.General;
 using NexusForever.GameTable.Model;
-using NexusForever.Network.World.Message.Model.Shared;
-using NexusForever.Network.World.Message.Static;
 using NexusForever.Shared;
 
 namespace NexusForever.Game.Abstract.Entity

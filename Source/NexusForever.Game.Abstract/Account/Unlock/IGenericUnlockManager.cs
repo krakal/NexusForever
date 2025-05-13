@@ -1,6 +1,6 @@
 ﻿using NexusForever.Database.Auth;
 using NexusForever.Game.Static.Entity;
-using NexusForever.Network.World.Message.Static;
+using NexusForever.Game.Static.Account.Unlock;
 
 namespace NexusForever.Game.Abstract.Account.Unlock
 {

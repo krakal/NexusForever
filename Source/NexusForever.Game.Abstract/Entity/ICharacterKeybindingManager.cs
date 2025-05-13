@@ -1,6 +1,6 @@
 ﻿using NexusForever.Database.Character;
+using NexusForever.Game.Abstract.General;
 using NexusForever.Network.Message;
-using NexusForever.Network.World.Message.Model;
 
 namespace NexusForever.Game.Abstract.Entity
 {

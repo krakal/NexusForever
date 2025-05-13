@@ -2,13 +2,8 @@
 
 namespace NexusForever.Network.World.Message.Model.Shared
 {
-    public class Achievement : IWritable
+    public class Achievement : Game.Abstract.Achievement.Achievement, IWritable
     {
-        public ushort AchievementId { get; set; }
-        public uint Data0 { get; set; }
-        public uint Data1 { get; set; }
-        public ulong DateCompleted { get; set; }
-
         public void Write(GamePacketWriter writer)
         {
             writer.Write(AchievementId, 15u);

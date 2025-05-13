@@ -3,22 +3,8 @@ using NexusForever.Network.Message;
 
 namespace NexusForever.Network.World.Message.Model.Shared
 {
-    public class BuybackItem : IWritable
+    public class BuybackItem : Game.Abstract.Entity.BuybackItem, IWritable
     {
-        public uint UniqueId { get; set; }
-        public uint ItemId { get; set; }
-        public uint Quantity { get; set; }
-        public ulong Unk3 { get; set; }
-        public uint Unk4 { get; set; }
-        public ulong Unk5 { get; set; }
-        public ulong Unk6 { get; set; }
-        public uint Unk7 { get; set; }
-        public byte[] Unk8 { get; set; } = new byte[20];
-        public byte[] Unk9 { get; set; } = new byte[32];
-        public CurrencyType[] CurrencyTypeId { get; set; } = new CurrencyType[2];
-        public ulong[] CurrencyAmount { get; set; } = new ulong[2];
-        public uint UnkE { get; set; }
-
         public void Write(GamePacketWriter writer)
         {
             writer.Write(UniqueId);

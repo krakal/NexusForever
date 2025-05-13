@@ -1,4 +1,4 @@
-﻿using NexusForever.Network.World.Entity;
+﻿using NexusForever.Game.Abstract.Entity.Movement;
 
 namespace NexusForever.Game.Abstract.Cinematic
 {

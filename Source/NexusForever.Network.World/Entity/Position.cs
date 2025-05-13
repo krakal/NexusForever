@@ -3,19 +3,8 @@ using NexusForever.Network.Message;
 
 namespace NexusForever.Network.World.Entity
 {
-    public class Position : IReadable, IWritable
+    public class Position : Game.Abstract.Entity.Movement.Position, IReadable, IWritable
     {
-        public Vector3 Vector { get; private set; }
-
-        public Position()
-        {
-        }
-
-        public Position(Vector3 vector)
-        {
-            Vector = vector;
-        }
-
         public void Read(GamePacketReader reader)
         {
             Vector = new Vector3(
