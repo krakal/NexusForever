@@ -55,9 +55,9 @@ namespace NexusForever.Game.Account.Entitlement
             saveMask = SaveMask.None;
         }
 
-        ServerAccountEntitlement INetworkBuildable<ServerAccountEntitlement>.Build()
+        Game.Migration.Entitlement.ServerAccountEntitlement INetworkBuildable<Game.Migration.Entitlement.ServerAccountEntitlement>.Build()
         {
-            return new ServerAccountEntitlement
+            return new Game.Migration.Entitlement.ServerAccountEntitlement
             {
                 Entitlement = Type,
                 Count       = Amount

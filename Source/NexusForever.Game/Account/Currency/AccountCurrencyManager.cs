@@ -105,7 +105,7 @@ namespace NexusForever.Game.Account.Currency
         {
             account.Session.EnqueueMessageEncrypted(new ServerAccountCurrencySet
             {
-                AccountCurrencies = currencies.Values.Select(c => c.Build()).ToList()
+                AccountCurrencies = currencies.Values.Select(c => (Network.World.Message.Model.Shared.AccountCurrency)c.Build()).ToList()
             });
         }
 
@@ -125,7 +125,7 @@ namespace NexusForever.Game.Account.Currency
         {
             account.Session.EnqueueMessageEncrypted(new ServerAccountCurrencyGrant
             {
-                AccountCurrency = accountCurrency.Build(),
+                AccountCurrency = (Network.World.Message.Model.Shared.AccountCurrency)accountCurrency.Build(),
                 Unknown0 = reason
             });
         }

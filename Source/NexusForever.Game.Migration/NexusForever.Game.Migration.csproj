@@ -16,7 +16,6 @@
     <Folder Include="Mail\" />
     <Folder Include="Housing\" />
     <Folder Include="Guild\" />
-    <Folder Include="Entitlement\" />
     <Folder Include="Quest\" />
     <Folder Include="Spell\" />
     <Folder Include="Storefront\" />

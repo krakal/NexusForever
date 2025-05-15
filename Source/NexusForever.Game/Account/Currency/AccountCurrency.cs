@@ -6,7 +6,6 @@ using NexusForever.Game.Abstract.Account.Currency;
 using NexusForever.Game.Static.Account;
 using NexusForever.GameTable;
 using NexusForever.GameTable.Model;
-using ServerAccountCurrency = NexusForever.Network.World.Message.Model.Shared.AccountCurrency;
 
 namespace NexusForever.Game.Account.Currency
 {
@@ -123,9 +122,9 @@ namespace NexusForever.Game.Account.Currency
             return true;
         }
 
-        public ServerAccountCurrency Build()
+        public Game.Migration.Account.AccountCurrency Build()
         {
-            return new ServerAccountCurrency
+            return new Game.Migration.Account.AccountCurrency
             {
                 AccountCurrencyType = (byte)CurrencyId,
                 Amount              = Amount

@@ -68,7 +68,7 @@ namespace NexusForever.Game.Account.Entitlement
 
         protected override void SendEntitlement(IAccountEntitlement entitlement)
         {
-            account.Session.EnqueueMessageEncrypted(entitlement.Build());
+            account.Session.EnqueueMessageEncrypted( (Network.World.Message.Model.ServerAccountEntitlement) entitlement.Build());
         }
     }
 }
