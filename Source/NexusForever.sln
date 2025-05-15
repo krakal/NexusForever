@@ -74,6 +74,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusForever.Script.Arcterr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusForever.Script.Farside", "NexusForever.Script.Farside\NexusForever.Script.Farside.csproj", "{C0403F91-7C3F-49DC-9DDF-49F1101C125A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusForever.Game.Migration", "NexusForever.Game.Migration\NexusForever.Game.Migration.csproj", "{43FDD28F-38EB-422E-B383-DFB88579E99F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -192,6 +194,10 @@ Global
 		{C0403F91-7C3F-49DC-9DDF-49F1101C125A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0403F91-7C3F-49DC-9DDF-49F1101C125A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0403F91-7C3F-49DC-9DDF-49F1101C125A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43FDD28F-38EB-422E-B383-DFB88579E99F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43FDD28F-38EB-422E-B383-DFB88579E99F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43FDD28F-38EB-422E-B383-DFB88579E99F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43FDD28F-38EB-422E-B383-DFB88579E99F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -226,6 +232,7 @@ Global
 		{437ED8C4-379B-4EE4-879B-CDD512FF2868} = {77316C3F-CB6A-42E6-B790-A9376662D5E0}
 		{7AD4C674-95D7-4188-B48E-A557E0127B04} = {77316C3F-CB6A-42E6-B790-A9376662D5E0}
 		{C0403F91-7C3F-49DC-9DDF-49F1101C125A} = {77316C3F-CB6A-42E6-B790-A9376662D5E0}
+		{43FDD28F-38EB-422E-B383-DFB88579E99F} = {F11199C0-850A-4DA7-A71B-C597581970D6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7D83B735-7E6A-4C1A-83C4-DD80682C2859}

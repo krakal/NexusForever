@@ -1,4 +1,5 @@
 ﻿using NexusForever.Game.Abstract.Entity;
+using NexusForever.Game.Static;
 using NexusForever.Game.Static.Entity;
 using NexusForever.Network.Message;
 using NexusForever.Network.World.Message.Model;

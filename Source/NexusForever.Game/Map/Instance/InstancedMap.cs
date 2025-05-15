@@ -4,10 +4,10 @@ using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Abstract.Map;
 using NexusForever.Game.Abstract.Map.Instance;
 using NexusForever.Game.Abstract.Map.Lock;
+using NexusForever.Game.Static;
 using NexusForever.Game.Static.Entity;
 using NexusForever.Game.Static.Map;
 using NexusForever.GameTable.Model;
-using NexusForever.Network.World.Message.Static;
 using NLog;
 
 namespace NexusForever.Game.Map.Instance

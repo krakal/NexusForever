@@ -6,12 +6,12 @@ using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Abstract.Mail;
 using NexusForever.Game.Character;
 using NexusForever.Game.Mail;
+using NexusForever.Game.Static;
 using NexusForever.Game.Static.Entity;
 using NexusForever.Game.Static.Mail;
 using NexusForever.GameTable;
 using NexusForever.GameTable.Model;
 using NexusForever.Network.World.Message.Model;
-using NexusForever.Network.World.Message.Static;
 using NexusForever.Shared.Game;
 
 namespace NexusForever.Game.Entity

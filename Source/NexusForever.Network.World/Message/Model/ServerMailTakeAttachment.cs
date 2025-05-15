@@ -1,5 +1,5 @@
+using NexusForever.Game.Static;
 using NexusForever.Network.Message;
-using NexusForever.Network.World.Message.Static;
 
 namespace NexusForever.Network.World.Message.Model
 {

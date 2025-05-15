@@ -1,12 +1,12 @@
 ﻿using NexusForever.Game.Abstract.Entity;
 using NexusForever.Game.Abstract.Prerequisite;
 using NexusForever.Game.Spell;
+using NexusForever.Game.Static;
 using NexusForever.GameTable;
 using NexusForever.GameTable.Model;
 using NexusForever.Network;
 using NexusForever.Network.Message;
 using NexusForever.Network.World.Message.Model;
-using NexusForever.Network.World.Message.Static;
 
 namespace NexusForever.WorldServer.Network.Message.Handler.Item
 {

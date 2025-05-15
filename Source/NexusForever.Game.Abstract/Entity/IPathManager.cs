@@ -1,4 +1,5 @@
 ﻿using NexusForever.Database.Character;
+using NexusForever.Game.Static;
 using NexusForever.Network.World.Message.Static;
 
 namespace NexusForever.Game.Abstract.Entity

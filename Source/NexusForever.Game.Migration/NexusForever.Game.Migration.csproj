@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NexusForever.Game.Static\NexusForever.Game.Static.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Achievement\" />
+    <Folder Include="Matching\" />
+    <Folder Include="Mail\" />
+    <Folder Include="Housing\" />
+    <Folder Include="Guild\" />
+    <Folder Include="Entitlement\" />
+    <Folder Include="Quest\" />
+    <Folder Include="Spell\" />
+    <Folder Include="Storefront\" />
+  </ItemGroup>
+
+</Project>

@@ -2,10 +2,16 @@
 
 namespace NexusForever.Network.World.Message.Model.Shared
 {
-    public class TargetPlayerIdentity : IReadable, IWritable
+    public class TargetPlayerIdentity : Game.Migration.Entity.Identity, IReadable, IWritable
     {
-        public ushort RealmId { get; set; }
-        public ulong CharacterId { get; set; }
+        public TargetPlayerIdentity() : base()
+        {
+        }
+
+        public TargetPlayerIdentity(ushort realmId, ulong characterId)
+            : base(realmId, characterId)
+        {
+        }
 
         public void Read(GamePacketReader reader)
         {

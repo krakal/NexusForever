@@ -5,7 +5,7 @@ using NexusForever.Game.Abstract.Map;
 using NexusForever.Game.Abstract.Map.Instance;
 using NexusForever.Game.Abstract.Map.Lock;
 using NexusForever.Game.Map.Lock;
-using NexusForever.Network.World.Message.Static;
+using NexusForever.Game.Static;
 using NexusForever.Shared;
 
 namespace NexusForever.Game.Map.Instance

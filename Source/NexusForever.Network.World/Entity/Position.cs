@@ -3,10 +3,8 @@ using NexusForever.Network.Message;
 
 namespace NexusForever.Network.World.Entity
 {
-    public class Position : IReadable, IWritable
+    public class Position : Game.Migration.Entity.Position, IReadable, IWritable
     {
-        public Vector3 Vector { get; private set; }
-
         public Position()
         {
         }

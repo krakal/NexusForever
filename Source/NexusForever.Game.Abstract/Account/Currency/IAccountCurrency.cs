@@ -1,8 +1,8 @@
 ﻿using NexusForever.Database.Auth;
+using NexusForever.Game.Migration.Account;
 using NexusForever.Game.Static.Account;
 using NexusForever.GameTable.Model;
 using NexusForever.Network.Message;
-using NexusForever.Network.World.Message.Model.Shared;
 
 namespace NexusForever.Game.Abstract.Account.Currency
 {
