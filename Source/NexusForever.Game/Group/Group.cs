@@ -23,10 +23,10 @@ namespace NexusForever.Game.Group
 
         private IGroupMarkerInfo markerInfo;
 
-        private LootRule lootRule = LootRule.NeedBeforeGreed;
-        private LootRule lootRuleThreshold = LootRule.RoundRobin;
-        private HarvestLootRule lootRuleHarvest = HarvestLootRule.FirstTagger;
-        private LootThreshold lootThreshold = LootThreshold.Good;
+        private LootRule _lootRule = LootRule.NeedBeforeGreed;
+        private LootRule _lootRuleThreshold = LootRule.RoundRobin;
+        private HarvestLootRule _lootRuleHarvest = HarvestLootRule.FirstTagger;
+        private LootThreshold _lootThreshold = LootThreshold.Good;
 
         /// <summary>
         /// Id for the current <see cref="Group"/>
@@ -794,10 +794,10 @@ namespace NexusForever.Game.Group
                 GroupId = Id,
                 Flags = Flags,
                 Leader = Leader.Identity,
-                LootRule = lootRule,
-                LootThresholdRule = lootRuleThreshold,
-                LootRuleHarvest = lootRuleHarvest,
-                LootThresholdQuality = lootThreshold,
+                LootRule = _lootRule,
+                LootThresholdRule = _lootRuleThreshold,
+                LootRuleHarvest = _lootRuleHarvest,
+                LootThresholdQuality = _lootThreshold,
                 MaxGroupSize = MaxGroupSize,
                 MemberInfos = BuildMembersInfo(),
                 RealmId = RealmContext.Instance.RealmId,
